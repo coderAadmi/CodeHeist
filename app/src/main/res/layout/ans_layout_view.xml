@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/answer_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="20dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginEnd="20dp"
+    android:layout_marginBottom="10dp"
+    android:checkable="true"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardElevation="4dp">
+
+    <FrameLayout
+        android:id="@+id/answer_card_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/answer_linear"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/white"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/relative_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/img_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:scaleType="fitXY"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/ans_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="4dp"
+                    android:maxLines="4"
+                    android:paddingTop="2dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/see_more"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="@font/audiowide"
+                    android:maxLines="4"
+                    android:paddingTop="2dp"
+                    android:text="see more"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:textSize="12sp" />
+
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp">
+
+                <TextView
+                    android:id="@+id/author_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/audiowide"
+                    android:text="Author name"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/posted_at_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/author_name"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/audiowide"
+                    android:text="22 / 05 / 2019"
+                    android:textSize="12sp" />
+
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/plus_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/posted_at_date"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="16dp"
+                    app:srcCompat="@drawable/ic_plus" />
+
+                <TextView
+                    android:id="@+id/likes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/plus_icon"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+
+                    android:layout_toEndOf="@+id/plus_icon"
+                    android:fontFamily="@font/audiowide"
+                    android:text="20K"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/minus_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/plus_icon"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="16dp"
+                    app:srcCompat="@drawable/ic_minus" />
+
+                <TextView
+                    android:id="@+id/dislikes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/minus_icon"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toEndOf="@+id/minus_icon"
+                    android:fontFamily="@font/audiowide"
+                    android:text="20K"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/plus_icon"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="8dp"
+                    app:srcCompat="@drawable/ic_unsaved" />
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/answer_rel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:visibility="gone">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/answer_collapse_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:buttonTint="@color/colorPrimary"
+                android:checked="true" />
+
+            <TextView
+                android:id="@+id/answer_by"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="12dp"
+                android:layout_toStartOf="@+id/answer_collapse_button"
+                android:paddingStart="20dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="Poloman"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/answer_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/answer_by"
+                android:layout_marginTop="2dp"
+                android:paddingStart="20dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="20 / 02 / 2020"
+                android:textSize="12sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/answer_map_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/answer_date" />
+
+            <RelativeLayout
+                android:layout_below="@id/answer_map_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:layout_alignParentTop="true"
+                    android:id="@+id/answer_like_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:checked="true"
+                    app:thumbTint="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/likes_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/answer_like_button"
+                    android:layout_alignEnd="@+id/answer_like_button"
+                    android:layout_below="@id/answer_like_button"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:text="Like" />
+
+                <TextView
+                    android:id="@+id/likes_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/answer_like_button"
+                    android:layout_alignBottom="@+id/answer_like_button"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@+id/answer_like_button"
+                    android:gravity="center"
+                    android:text="30K" />
+
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/answer_comment_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/likes_tv"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginStart="20dp"
+                    android:button="@drawable/comment_button_selector" />
+
+                <TextView
+                    android:id="@+id/comment_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/answer_comment_button"
+                   android:layout_below="@id/answer_comment_button"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:text="Comment" />
+
+                <TextView
+                    android:id="@+id/comments_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/answer_comment_button"
+                    android:layout_alignBottom="@+id/answer_comment_button"
+                    android:layout_toEndOf="@+id/answer_comment_button"
+                    android:gravity="center"
+                    android:text="30K" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/answer_save_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:button="@drawable/comment_button_selector"
+                    android:checked="true" />
+
+                <TextView
+                    android:id="@+id/save_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/answer_save_button"
+                    android:layout_below="@id/answer_save_button"
+                    android:layout_marginStart="-4dp"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:text="Save" />
+
+            </RelativeLayout>
+
+
+        </RelativeLayout>
+
+    </FrameLayout>
+</com.google.android.material.card.MaterialCardView>

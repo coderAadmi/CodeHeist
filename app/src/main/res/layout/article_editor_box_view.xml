@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@android:color/white"
+    android:layout_height="wrap_content">
+
+
+    <LinearLayout android:background="@android:color/white"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:cardElevation="2dp"
+            app:cardCornerRadius="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:visibility="gone"
+                    android:id="@+id/img_view"
+                    android:scaleType="fitXY"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:visibility="gone"
+                        android:id="@+id/remove_img_view"
+                        app:srcCompat="@drawable/ic_remove"
+                        android:layout_margin="16dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </RelativeLayout>
+
+            </FrameLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:id="@+id/ans_text_input_layout1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="600"
+            android:hint="Add text"
+            app:boxStrokeColor="@android:color/black"
+            app:boxStrokeWidth="2dp"
+            app:endIconDrawable="@drawable/ic_add_black"
+            app:endIconMode="custom"
+            app:endIconTintMode="src_atop"
+            app:endIconTint="@android:color/black"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:maxLines="5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                app:backgroundTint="@android:color/black"
+                android:layout_weight="1"
+                android:id="@+id/add"
+                android:text="Add"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                app:backgroundTint="@android:color/white"
+                android:textColor="@android:color/black"
+                android:layout_weight="1"
+                android:id="@+id/cancel"
+                android:text="Cancel"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginEnd="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

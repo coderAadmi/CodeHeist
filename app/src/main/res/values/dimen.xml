@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="tall_toolbar_height">100dp</dimen>
+
+    <!-- Margin between the checked icon and the card -->
+    <dimen xmlns:tools="http://schemas.android.com/tools"
+        tools:override="true"
+        name="mtrl_card_checked_icon_margin">8dp</dimen>
+    <!-- Size of the icon to be placed when the card is checked -->
+    <dimen xmlns:tools="http://schemas.android.com/tools"
+        tools:override="true"
+        name="mtrl_card_checked_icon_size">40dp</dimen>
+</resources>

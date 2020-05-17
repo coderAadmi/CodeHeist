@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/postAnswer"
+        android:layout_alignParentTop="true">
+
+
+        <RelativeLayout
+            android:id="@+id/ans_box"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appBarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:background="@android:color/black"
+                app:liftOnScroll="true">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:menu="@menu/pusblish_question_menu"
+                    app:title="Add Answer"
+                    app:titleTextAppearance="@style/Toolbar"
+                    app:titleTextColor="@android:color/white" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <RelativeLayout
+                android:background="@android:color/black"
+                android:layout_below="@+id/appBarLayout"
+                android:id="@+id/question_rel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/question_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@android:color/black"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:hint="Question"
+                    app:endIconMode="custom"
+                    app:endIconTintMode="screen"
+                    app:endIconDrawable="@drawable/ic_check_circle"
+                    app:endIconTint="@color/colorPrimary"
+                    app:helperText="Enter your question here"
+                    app:helperTextTextColor="@color/colorPrimary"
+                    app:hintAnimationEnabled="true"
+                    android:textColorHint="@color/colorPrimary"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:visibility="gone"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:layout_below="@id/question_text"
+                    android:id="@+id/queston_title_textview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </RelativeLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:background="@android:color/white"
+                android:id="@+id/ans_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/question_rel"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="4dp"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+
+        </RelativeLayout>
+
+
+        <com.google.android.material.circularreveal.CircularRevealFrameLayout
+            android:id="@+id/sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:visibility="invisible"
+            app:layout_behavior="com.google.android.material.transformation.FabTransformationSheetBehavior">
+
+            <include layout="@layout/article_editor_box_view" />
+
+        </com.google.android.material.circularreveal.CircularRevealFrameLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="24dp"
+            app:backgroundTint="@android:color/black"
+            app:borderWidth="10dp"
+            app:elevation="4dp"
+            app:srcCompat="@drawable/ic_add"
+            app:tint="@android:color/white" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:visibility="gone"
+        android:id="@+id/postAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:backgroundTint="@android:color/black"
+        app:rippleColor="#FFFFFF"
+        app:elevation="4dp"
+        android:text="Post Answer"
+        android:textColor="@android:color/white"
+        />
+
+<!--    <com.google.android.material.card.MaterialCardView-->
+<!--        android:id="@+id/postAnswer"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="?attr/actionBarSize"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_weight="1"-->
+<!--        android:clickable="true"-->
+<!--        android:focusable="true"-->
+<!--        app:cardBackgroundColor="@android:color/black"-->
+<!--        app:cardElevation="4dp"-->
+<!--        app:rippleColor="#FFFFFF">-->
+
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/post_button_textView"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerInParent="true"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Post Answer"-->
+<!--                android:textColor="@android:color/white"-->
+<!--                android:textSize="14sp"-->
+<!--                android:textStyle="bold" />-->
+
+<!--        </RelativeLayout>-->
+
+<!--    </com.google.android.material.card.MaterialCardView>-->
+
+</RelativeLayout>
+
+
+
+
+

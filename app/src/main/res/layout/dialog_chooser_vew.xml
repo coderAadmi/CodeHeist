@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="0dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white">
+    
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            app:titleTextAppearance="@style/Toolbar"
+            android:background="@android:color/black"
+            android:id="@+id/toolbar"
+            app:title="Choose from"
+            app:titleTextColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/camera"
+            app:rippleColor="@android:color/white"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@android:color/black"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:text="Camera"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/audiowide"
+                android:textStyle="bold"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            app:rippleColor="@android:color/white"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:cardElevation="2dp"
+            android:id="@+id/gallery"
+            app:cardBackgroundColor="@android:color/black"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:text="Gallery"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/audiowide"
+                android:textStyle="bold"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            app:rippleColor="@android:color/black"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:cardElevation="0dp"
+            android:id="@+id/cancel"
+            app:cardBackgroundColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:text="Cancel"
+                android:textColor="@android:color/black"
+                android:fontFamily="@font/audiowide"
+                android:textStyle="bold"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
