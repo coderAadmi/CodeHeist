@@ -4,9 +4,9 @@
     android:id="@+id/answer_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="20dp"
+    android:layout_marginStart="10dp"
     android:layout_marginTop="10dp"
-    android:layout_marginEnd="20dp"
+    android:layout_marginEnd="10dp"
     android:layout_marginBottom="10dp"
     android:checkable="true"
     android:clickable="true"
@@ -19,6 +19,8 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:id="@+id/answer_linear"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -145,13 +147,15 @@
                     android:textStyle="bold" />
 
 
-                <androidx.appcompat.widget.AppCompatImageView
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/plus_icon"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="8dp"
-                    app:srcCompat="@drawable/ic_unsaved" />
+                    android:button="@drawable/ic_unsaved"
+                    android:gravity="bottom"/>
 
 
             </RelativeLayout>
@@ -173,6 +177,7 @@
                 android:layout_alignParentEnd="true"
                 android:buttonTint="@color/colorPrimary"
                 android:checked="true" />
+
 
             <TextView
                 android:id="@+id/answer_by"
@@ -217,7 +222,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:checked="true"
                     app:thumbTint="@android:color/black" />
 
                 <TextView
@@ -240,59 +244,60 @@
                     android:layout_alignBottom="@+id/answer_like_button"
                     android:layout_marginStart="12dp"
                     android:layout_toEndOf="@+id/answer_like_button"
+                    android:gravity="center" />
+
+
+
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    app:thumbTint="@android:color/black"
+                    android:id="@+id/answer_dislike_buttton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginStart="30dp"/>
+
+                <TextView
+                    android:id="@+id/dislikes_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/answer_like_button"
+                    android:layout_alignBottom="@+id/answer_like_button"
+                    android:layout_marginStart="4dp"
+                    android:layout_toEndOf="@+id/answer_dislike_buttton"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/disklike_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignStart="@+id/answer_dislike_buttton"
+                    android:layout_below="@id/answer_dislike_buttton"
+                    android:layout_marginBottom="8dp"
                     android:gravity="center"
-                    android:text="30K" />
+                    android:text="DisLike" />
 
 
                 <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:layout_alignEnd="@+id/comment_tv"
                     android:id="@+id/answer_comment_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_above="@+id/likes_tv"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginStart="20dp"
                     android:button="@drawable/comment_button_selector" />
 
                 <TextView
+                    android:layout_marginEnd="20dp"
+                    android:layout_alignParentEnd="true"
                     android:id="@+id/comment_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignStart="@+id/answer_comment_button"
-                   android:layout_below="@id/answer_comment_button"
+                    android:layout_below="@id/answer_comment_button"
                     android:layout_marginBottom="8dp"
                     android:gravity="center"
                     android:text="Comment" />
 
-                <TextView
-                    android:id="@+id/comments_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/answer_comment_button"
-                    android:layout_alignBottom="@+id/answer_comment_button"
-                    android:layout_toEndOf="@+id/answer_comment_button"
-                    android:gravity="center"
-                    android:text="30K" />
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/answer_save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="20dp"
-                    android:button="@drawable/comment_button_selector"
-                    android:checked="true" />
-
-                <TextView
-                    android:id="@+id/save_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignStart="@+id/answer_save_button"
-                    android:layout_below="@id/answer_save_button"
-                    android:layout_marginStart="-4dp"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="center"
-                    android:text="Save" />
 
             </RelativeLayout>
 
