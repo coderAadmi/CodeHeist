@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.prady.codeheist.Controller;
 import com.prady.codeheist.R;
 
 import java.io.ByteArrayOutputStream;
@@ -101,6 +103,7 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
         ansImageMap.put(textList.size(),images.size());
         textList.put(textList.size() + "", "img: " + images.size());
         images.add(bitmap);
+        mAnsListListener.onAnswerListUpdated(textList.size() == 0);
     }
 
     public TreeMap<String, String> getTextList() {
@@ -158,23 +161,6 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
                         .load(images.get(ansImageMap.get(position)))
                         .placeholder(R.drawable.app_logo)
                         .into(((AnswerImageViewHolder) holder).mImgView);
-//                try {
-//                  int index = Integer.parseInt(textList.get(position + "").substring(5));
-//                    Glide.with(holder.itemView.getContext())
-//                            .load(images.get(index))
-//                            .placeholder(R.drawable.app_logo)
-//                            .into(((AnswerImageViewHolder) holder).mImgView);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.d("DATA_IMG_EX",e.getMessage());
-//                    Log.d("POS "+position,textList.get(position+"").substring(5));
-//                    Glide.with(holder.itemView.getContext())
-//                            .load(textList.get(position+"").substring(5))
-//                            .placeholder(R.drawable.app_logo)
-//                            .into(((AnswerImageViewHolder) holder).mImgView);
-//                }
-
             }
         }
     }

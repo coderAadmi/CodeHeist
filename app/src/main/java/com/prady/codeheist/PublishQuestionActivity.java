@@ -1,7 +1,9 @@
 package com.prady.codeheist;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -66,7 +68,7 @@ import butterknife.ButterKnife;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class PublishQuestionActivity extends AppCompatActivity implements AnswerEditorListAdapter.OnAnswerListUpdatedListener, ChooseOptionDialog.OnDialogOptionSelectedListener {
+public class PublishQuestionActivity extends AppCompatActivity implements AnswerEditorListAdapter.OnAnswerListUpdatedListener, ChooseOptionDialog.OnDialogOptionSelectedListener, Controller.OnPermissionGrantedListener {
 
     @BindView(R.id.add)
     MaterialButton mAdd;
@@ -113,8 +115,12 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
 
     boolean isAsking;
     boolean isPostingQuestion;
-
+    boolean isCameraPermitted;
     int imgUploadedCount;
+
+    private ChooseOptionDialog dialog;
+
+    Uri imageUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,6 +154,7 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
 
     private void init() {
         imgUploadedCount = 0;
+        isCameraPermitted = false;
         setSupportActionBar(mToolbar);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -157,6 +164,7 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             mQuestionTitle.setVisibility(VISIBLE);
             mQuestionTitle.setText(questionTitle.getTitle());
         } else {
+            getSupportActionBar().setTitle("Ask Question");
             mPostAnswer.setText("Post Question");
             questionTitle = new QuestionTitle();
             addEndIconListenerOnQuestionEditor();
@@ -170,6 +178,8 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             public void onClick(View v) {
                 if (mImgView.getVisibility() == VISIBLE) {
                     addImgtoAnswer();
+                    mFAB.setExpanded(false);
+                    mAnsText.getEditText().setText(null);
                 } else {
                     String text = mAnsText.getEditText().getText().toString();
                     text = text.trim();
@@ -218,13 +228,14 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             @Override
             public void onClick(View v) {
                 if (mImgView.getVisibility() == View.VISIBLE) {
+                    bitmap = null;
                     mImgView.setImageBitmap(null);
                     mImgView.setVisibility(GONE);
                     mRemoveImgView.setVisibility(GONE);
                     mAnsText.setVisibility(View.VISIBLE);
                 }
                 mFAB.setExpanded(false);
-                if (answerListAdapter.getItemCount() != 0)
+                if (answerListAdapter.getItemCount() != 0 || isPostingQuestion)
                     mPostAnswer.setVisibility(VISIBLE);
                 mAnsText.getEditText().setText(null);
                 mAnsText.setError(null);
@@ -238,6 +249,12 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
                 if (mFAB.isExpanded()) {
                     mFAB.setExpanded(false);
                 } else {
+                    if(!Controller.isNetworkAvailable(PublishQuestionActivity.this))
+                    {
+                        Snackbar.make(mMainView, "No Internet Connection.", Snackbar.LENGTH_SHORT).show();
+                        Toast.makeText(PublishQuestionActivity.this, "Please see that you have a valid internet connection.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     if (!isAsking) {
                         mFAB.setExpanded(true);
                         mPostAnswer.setVisibility(GONE);
@@ -306,8 +323,15 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             public void onClick(View v) {
                 //select an image
 //                Toast.makeText(PublishQuestionActivity.this,"End icon clicked",Toast.LENGTH_LONG).show();
+                if (!Controller.isNetworkAvailable(PublishQuestionActivity.this)) {
+                    Toast.makeText(PublishQuestionActivity.this, "Check your internet connection. Answer can not update without internet connection", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Controller.askForPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PublishQuestionActivity.this, 301, PublishQuestionActivity.this);
                 mAnsText.setVisibility(GONE);
-                ChooseOptionDialog dialog = new ChooseOptionDialog();
+                dialog = new ChooseOptionDialog();
                 dialog.show(getSupportFragmentManager(), null);
             }
         });
@@ -335,6 +359,11 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
     private void postQuestion() {
         if (imgUploadedCount != answerListAdapter.getImages().size()) {
             Toast.makeText(this, "Please wait some images are uploading", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!Controller.isNetworkAvailable(this)) {
+            Snackbar.make(mMainView, "No Internet Connection.", Snackbar.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please see that you have a valid internet connection.", Toast.LENGTH_SHORT).show();
             return;
         }
 //        Answer answer = new Answer(questionTitle.getTitle(),"Poloman", "Poloman", "Anything right now", answerListAdapter.getTextList());
@@ -366,6 +395,13 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             Toast.makeText(this, "Please wait some images are uploading", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (!Controller.isNetworkAvailable(this)) {
+            Snackbar.make(mMainView, "No Internet Connection.", Snackbar.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please see that you have a valid internet connection.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         FirebaseFirestore fb = FirebaseFirestore.getInstance();
         Answer answer = new Answer(questionTitle.getTitle(), "Poloman", "Poloman", "Anything right now", answerListAdapter.getTextList());
         fb.collection("discussions")
@@ -389,20 +425,24 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
 
     @Override
     public void onDialogOptionSelected(int item) {
+        if(!isCameraPermitted)
+        {
+            mAnsText.setVisibility(VISIBLE);
+            return;
+        }
         Intent intent = null;
-
         switch (item) {
             case ChooseOptionDialog.OPTION_CAMERA:
-                 ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.TITLE, new Timestamp(new Date()).toString());
                 values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
-                Uri imageUri = getContentResolver().insert(
+                 imageUri = getContentResolver().insert(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
                 intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, 0);
                 return;
             case ChooseOptionDialog.OPTION_GALLERY:
                 intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -417,25 +457,44 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap bitmap = null;
-        if (resultCode == RESULT_OK && data != null) {
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case 0:
-                    bitmap = (Bitmap) data.getExtras().get("data");
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    } catch (IOException e) {
+                        Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+//                        Log.d("DATA_CAM_FAILED",e.getMessage());
+                        mAnsText.setVisibility(VISIBLE);
+                        return;
+                    }
                     break;
                 case 1:
+                    if(data==null)
+                    {
+                        mAnsText.setVisibility(VISIBLE);
+                        Toast.makeText(this, "File can not be selected", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Uri imgURI = data.getData();
                     if (imgURI != null) {
                         try {
                             bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgURI);
                         } catch (IOException e) {
                             Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+                            mAnsText.setVisibility(VISIBLE);
+//                            Log.d("DATA_CAM_FAILED",e.getMessage());
                             return;
                         }
+                    }
+                    else {
+                        Toast.makeText(this, "File can not be selected", Toast.LENGTH_SHORT).show();
+                        mAnsText.setVisibility(VISIBLE);
                     }
                     break;
             }
             this.bitmap = bitmap;
-            Log.d("DATA_IMG",bitmap.getWidth()+" "+bitmap.getHeight());
+//            Log.d("DATA_IMG", bitmap.getWidth() + " " + bitmap.getHeight());
             mImgView.setVisibility(View.VISIBLE);
             mRemoveImgView.setVisibility(View.VISIBLE);
 //            mImgView.setImageBitmap(bitmap);
@@ -447,8 +506,26 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             mAnsText.clearOnEndIconChangedListeners();
         } else if (resultCode == RESULT_CANCELED) {
             mAnsText.setVisibility(View.VISIBLE);
-        } else {
-            Toast.makeText(this, "File can not be selected", Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults!=null && requestCode == 301)
+        {
+            if(grantResults[0]== PackageManager.PERMISSION_GRANTED)
+                isCameraPermitted = true;
+//            mAnsText.setVisibility(VISIBLE);
+        }
+        else{
+            dialog.dismiss();
+            mAnsText.setVisibility(VISIBLE);}
+    }
+
+    @Override
+    public void onPermissionGranted() {
+        isCameraPermitted = true;
     }
 }
