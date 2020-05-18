@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class Answer {
+
+    String id;
     String qTitle;
     String fromName;
     String fromId;
@@ -18,6 +20,9 @@ public class Answer {
     long dislikes;
     TreeMap<String,String> map;
     List<Comment> comments;
+
+    boolean isLiked;
+    boolean isDisliked;
 
     public List<Comment> getComments() {
         return comments;
@@ -36,6 +41,30 @@ public class Answer {
         this.edited = new Timestamp(new Date());
         likes = 0;
         dislikes = 0;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        isLiked = liked;
+    }
+
+    public boolean isDisliked() {
+        return isDisliked;
+    }
+
+    public void setDisliked(boolean disliked) {
+        isDisliked = disliked;
     }
 
     public String getqTitle() {

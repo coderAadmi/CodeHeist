@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.radiobutton.MaterialRadioButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.prady.codeheist.R;
 import com.prady.codeheist.datamodels.Answer;
 
@@ -29,8 +31,12 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
     List<Answer> answerList;
     Context context;
 
+    boolean wasOneChecked;
+
     public interface OnAnswerCardClickedListener {
         public void onAnswerCardClicked(Answer answer);
+        public void onAnswerLiked(Answer answer, boolean isAnsDisLiked, boolean isAnsLiked);
+        public void onAnswerDisliked(Answer answer,boolean isAnsLiked, boolean isAnsDisliked);
     }
 
     private OnAnswerCardClickedListener listener;
@@ -39,6 +45,7 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
         this.answerList = answerList;
         this.context = context;
         listener = (OnAnswerCardClickedListener) context;
+        wasOneChecked = false;
     }
 
     public void setAnswerList(List<Answer> answerList) {
@@ -96,6 +103,48 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
                 holder.mAnsRel.setVisibility(View.GONE);
             }
         });
+
+        holder.mAnsLikeButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                {
+                    wasOneChecked = true;
+                    boolean isDisLiked = false;
+                    if(holder.mAnsDislikeButton.isChecked())
+                    {
+                        holder.mAnsDislikeButton.setChecked(false);
+                        isDisLiked = true;
+                    }
+                    listener.onAnswerLiked(answerList.get(holder.getAdapterPosition()),isDisLiked,true);
+                    wasOneChecked = false;
+                }
+                else if(!wasOneChecked)
+                listener.onAnswerLiked(answerList.get(holder.getAdapterPosition()),false,false);
+//                listener.onAnswerLiked(answerList.get(holder.getAdapterPosition()),holder.mAnsLikeButton,holder.mAnsDislikeButton);
+            }
+        });
+
+        holder.mAnsDislikeButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                {
+                    wasOneChecked = true;
+                    boolean isAnsLiked = false;
+                    if(holder.mAnsLikeButton.isChecked())
+                    {
+                        holder.mAnsLikeButton.setChecked(false);
+                        isAnsLiked = true;
+                    }
+                    listener.onAnswerDisliked(answerList.get(holder.getAdapterPosition()),isAnsLiked,true);
+                    wasOneChecked = false;
+                }
+                else if(!wasOneChecked)
+                listener.onAnswerDisliked(answerList.get(holder.getAdapterPosition()),false,false);
+//                listener.onAnswerDisliked(answerList.get(holder.getAdapterPosition()),holder.mAnsLikeButton,holder.mAnsDislikeButton);
+            }
+        });
     }
 
     @Override
@@ -130,6 +179,19 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
 
         @BindView(R.id.answer_map_list)
         RecyclerView mAnswerMapList;
+
+        @BindView(R.id.answer_like_button)
+        SwitchMaterial mAnsLikeButton;
+
+        @BindView(R.id.answer_dislike_buttton)
+        SwitchMaterial mAnsDislikeButton;
+
+        @BindView(R.id.answer_comment_button)
+        MaterialRadioButton mAnsCommentButton;
+
+        @BindView(R.id.likes_count)
+        TextView mAnsLikesCount;
+
 
         public AnswerCardViewHolder(@NonNull View itemView) {
             super(itemView);
