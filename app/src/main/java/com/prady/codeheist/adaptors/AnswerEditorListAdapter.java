@@ -3,6 +3,7 @@ package com.prady.codeheist.adaptors;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -88,7 +89,6 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
         });
     }
 
-
     public List<Bitmap> getImages() {
         return images;
     }
@@ -142,11 +142,15 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
             return new AnswerImageViewHolder(inflater.inflate(R.layout.ans_img_view, parent, false));
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (textList.get(position + "").substring(0, 4).equals("tex:"))
+        if (textList.get(position + "").substring(0, 4).equals("tex:")){
+            if(isQuestionListView)
+            {
+                ((AnswerTextViewHolder) holder).mAnsTex.setTextColor(Color.WHITE);
+            }
             ((AnswerTextViewHolder) holder).mAnsTex.setText(textList.get(position + "").substring(5));
+        }
         else {
 //            ((AnswerImageViewHolder)holder).mImgView.setImageBitmap(images.get(Integer.parseInt(textList.get(position+"").substring(5))));
             if (isQuestionListView) {
