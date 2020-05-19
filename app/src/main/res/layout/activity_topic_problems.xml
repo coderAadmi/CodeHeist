@@ -39,18 +39,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/audiowide"
-                android:paddingStart="12dp"
+                android:paddingStart="15dp"
                 android:paddingTop="2dp"
-                android:paddingEnd="12dp"
+                android:paddingEnd="15dp"
                 android:paddingBottom="2dp"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
             <androidx.recyclerview.widget.RecyclerView
+                android:background="@android:color/black"
                 android:id="@+id/question_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" />
+                 />
+
+            <View
+                android:background="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginBottom="10dp"/>
 
             <LinearLayout
                 android:orientation="vertical"
