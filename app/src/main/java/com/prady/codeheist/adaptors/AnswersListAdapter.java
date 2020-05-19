@@ -38,7 +38,7 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
     boolean wasOneChecked;
 
     public interface OnAnswerCardClickedListener {
-        public void onAnswerCardClicked(Answer answer);
+        public void onAnswerCardClicked(Answer answer, SwitchMaterial liked, SwitchMaterial disliked);
 
         public void onAnswerLiked(Answer answer, boolean isAnsDisLiked, boolean isAnsLiked);
 
@@ -95,8 +95,8 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
         holder.mLikes.setText(answer.getLikes() + "");
         holder.mAnsLikesCount.setText(answer.getLikes() + "");
 
-        holder.mAnsLikeButton.setChecked(answer.isLiked());
-        holder.mAnsDislikeButton.setChecked(answer.isDisliked());
+//        holder.mAnsLikeButton.setChecked(answer.isLiked());
+//        holder.mAnsDislikeButton.setChecked(answer.isDisliked());
 
         holder.mDislikes.setText(answer.getDislikes() + "");
         holder.mAnsDislikesCount.setText(answer.getDislikes() + "");
@@ -104,7 +104,7 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
         holder.mAnswerCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onAnswerCardClicked(answerList.get(holder.getAdapterPosition()));
+                listener.onAnswerCardClicked(answerList.get(holder.getAdapterPosition()),holder.mAnsLikeButton,holder.mAnsDislikeButton);
                 holder.mAnsRel.setVisibility(View.VISIBLE);
                 holder.mAnswerLL.setVisibility(View.GONE);
                 AnswerEditorListAdapter answerMapAdapter = new AnswerEditorListAdapter(
@@ -193,7 +193,7 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
         return answerList.size();
     }
 
-    class AnswerCardViewHolder extends RecyclerView.ViewHolder {
+    public class AnswerCardViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.relative_layout)
         LinearLayout mRel;
