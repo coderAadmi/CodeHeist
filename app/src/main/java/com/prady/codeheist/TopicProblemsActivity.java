@@ -25,6 +25,7 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,8 +39,10 @@ import com.prady.codeheist.adaptors.AnswerEditorListAdapter;
 import com.prady.codeheist.adaptors.AnswersListAdapter;
 import com.prady.codeheist.datamodels.Answer;
 import com.prady.codeheist.datamodels.QuestionTitle;
+import com.prady.codeheist.datamodels.Reaction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +77,8 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
 
     AnswerEditorListAdapter questionListAdapter;
 
+    HashMap<String,Boolean> reactionMap;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -93,6 +98,8 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        reactionMap = new HashMap<>();
 
         mQuestionTitle.setText(questionTitle.getTitle());
         mQuestionListView.setLayoutManager(new LinearLayoutManager(this));
@@ -133,7 +140,7 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
                             Log.d("DATA_ANS_FETCH", "ERROR: " + e.getMessage());
                             return;
                         }
-                        Log.d("DATA_UPDATED_OR_FETCHED","FETCHED");
+                        Log.d("DATA_UPDATED_OR_FETCHED", "FETCHED");
                         answerList = new ArrayList<>();
                         answersListAdapter.setAnswerList(answerList);
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -168,8 +175,47 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
 
 
     @Override
-    public void onAnswerCardClicked(Answer answer) {
+    public void onAnswerCardClicked(Answer answer, SwitchMaterial liked, SwitchMaterial disliked) {
+        if(reactionMap.containsKey(answer.getId()))
+            return;
+
+        if (!Controller.isNetworkAvailable(TopicProblemsActivity.this)) {
+            Toast.makeText(TopicProblemsActivity.this, "No Internet Connection. Reactions won't work.", Toast.LENGTH_SHORT).show();
+        }
+
+        reactionMap.put(answer.getId(),true);
+
         //increase the card size
+        FirebaseFirestore.getInstance()
+                .collection("reactions")
+                .document("x5LXPkwEIIWtvA7fOgxF")//user id
+                .collection("likes_dislikes")
+                .document(answer.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(!task.isSuccessful())
+                        {
+                            Toast.makeText(TopicProblemsActivity.this,"Some error occured fetching reactions",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        DocumentSnapshot doc = task.getResult();
+                        if(doc==null)
+                            return;
+                        Reaction reaction = doc.toObject(Reaction.class);
+                        if(reaction==null)
+                            return;
+                        liked.setChecked(reaction.liked);
+                        disliked.setChecked(reaction.disliked);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("DATA_REACTION","ERROR: "+e.getMessage());
+                Toast.makeText(TopicProblemsActivity.this,"Some error occured",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -179,33 +225,41 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
             return;
         }
 
-
         WriteBatch writeBatch = FirebaseFirestore.getInstance().batch();
         DocumentReference ref = FirebaseFirestore.getInstance()
                 .collection("discussions")
                 .document(questionTitle.getId())
                 .collection("answers").document(answer.getId());
 
+
+        DocumentReference ref2 = FirebaseFirestore.getInstance()
+                .collection("reactions").document("x5LXPkwEIIWtvA7fOgxF")//
+                .collection("likes_dislikes").document(answer.getId());
+
+        Reaction reaction = new Reaction();
+
         if (isLiked) {
             if (isAnsDisliked) {
-                answer.setDisliked(false);
-                writeBatch.update(ref, "isDisliked", false);
+//                writeBatch.update(ref2, "isDisliked", false);
+                reaction.setDisliked(false);
                 writeBatch.update(ref, "dislikes", FieldValue.increment(-1L));
             }
-            answer.setLiked(true);
-            writeBatch.update(ref, "isLiked", true);
+            reaction.setLiked(true);
+            writeBatch.update(ref2, "isLiked", true);
             writeBatch.update(ref, "likes", FieldValue.increment(1L));
+        } else {
+//            answer.setLiked(false);
+//            writeBatch.update(ref2,"isLiked",false);
+            reaction.setLiked(false);
+            writeBatch.update(ref, "likes", FieldValue.increment(-1L));
         }
-        else {
-            answer.setLiked(false);
-            writeBatch.update(ref,"isLiked",false);
-            writeBatch.update(ref,"likes",FieldValue.increment(-1L));
-        }
+
+        writeBatch.set(ref2,reaction,SetOptions.merge());
         writeBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d("DATA_ANS_LIKED", "DONE: "+answer.getId());
+                    Log.d("DATA_ANS_LIKED", "DONE: " + answer.getId());
                     return;
                 }
                 Log.d("DATA_ANS_LIKED", "NOT DONE");
@@ -233,27 +287,35 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
                 .document(questionTitle.getId())
                 .collection("answers").document(answer.getId());
 
+        DocumentReference ref2 = FirebaseFirestore.getInstance()
+                .collection("reactions").document("x5LXPkwEIIWtvA7fOgxF")//user id
+                .collection("likes_dislikes").document(answer.getId());
+
+        Reaction reaction = new Reaction();
+
         if (isDisliked) {
             if (isAnsLiked) {
-                answer.setLiked(false);
-                writeBatch.update(ref, "isLiked", false);
+//                answer.setLiked(false);
+                reaction.setLiked(false);
+//                writeBatch.update(ref2, "isLiked", false);
                 writeBatch.update(ref, "likes", FieldValue.increment(-1L));
             }
-            answer.setDisliked(true);
-            writeBatch.update(ref, "isDisliked", true);
+//            answer.setDisliked(true);
+            reaction.setDisliked(true);
+//            writeBatch.update(ref2, "isDisliked", true);
             writeBatch.update(ref, "dislikes", FieldValue.increment(1L));
+        } else {
+//            answer.setDisliked(false);
+//            writeBatch.update(ref2,"isDisliked",false);
+            reaction.setDisliked(false);
+            writeBatch.update(ref, "dislikes", FieldValue.increment(-1L));
         }
-        else
-        {
-            answer.setDisliked(false);
-            writeBatch.update(ref,"isDisliked",false);
-            writeBatch.update(ref,"dislikes",FieldValue.increment(-1L));
-        }
+        writeBatch.set(ref2,reaction);
         writeBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d("DATA_ANS_DISLIKED", "DONE: "+answer.getId());
+                    Log.d("DATA_ANS_DISLIKED", "DONE: " + answer.getId());
                     return;
                 }
                 Log.d("DATA_ANS_DISLIKED", "NOT DONE");
