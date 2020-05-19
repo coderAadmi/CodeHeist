@@ -8,10 +8,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.prady.codeheist.R;
 import com.prady.codeheist.datamodels.QuestionTitle;
 
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -45,7 +45,7 @@ public class TopicListAdaptor extends RecyclerView.Adapter<TopicListAdaptor.Topi
     @Override
     public void onBindViewHolder(@NonNull TopicViewHolder holder, int position) {
         holder.mTitle.setText(topics.get(holder.getAdapterPosition()).getTitle());
-        holder.mTitle.setOnClickListener(new View.OnClickListener() {
+        holder.mTopicCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onTopicClicked(topics.get(holder.getAdapterPosition()));
@@ -62,6 +62,9 @@ public class TopicListAdaptor extends RecyclerView.Adapter<TopicListAdaptor.Topi
 
         @BindView(R.id.title)
         TextView mTitle;
+
+        @BindView(R.id.topic_card)
+        MaterialCardView mTopicCard;
 
         public TopicViewHolder(@NonNull View itemView) {
             super(itemView);
