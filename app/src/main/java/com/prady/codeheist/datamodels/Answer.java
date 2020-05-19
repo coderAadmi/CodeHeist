@@ -21,9 +21,6 @@ public class Answer {
     TreeMap<String,String> map;
     List<Comment> comments;
 
-    boolean isLiked;
-    boolean isDisliked;
-
     public List<Comment> getComments() {
         return comments;
     }
@@ -31,7 +28,7 @@ public class Answer {
     public Answer() {
     }
 
-    public Answer(String qTitle,String fromName, String fromId, String fromImg, TreeMap<String, String> map) {
+    public Answer(String qTitle, String fromName, String fromId, String fromImg, TreeMap<String, String> map) {
         this.qTitle = qTitle;
         this.fromName = fromName;
         this.fromId = fromId;
@@ -51,21 +48,6 @@ public class Answer {
         this.id = id;
     }
 
-    public boolean isLiked() {
-        return isLiked;
-    }
-
-    public void setLiked(boolean liked) {
-        isLiked = liked;
-    }
-
-    public boolean isDisliked() {
-        return isDisliked;
-    }
-
-    public void setDisliked(boolean disliked) {
-        isDisliked = disliked;
-    }
 
     public String getqTitle() {
         return qTitle;
