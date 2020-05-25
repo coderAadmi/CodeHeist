@@ -3,10 +3,11 @@ package com.prady.codeheist;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,7 +20,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -30,24 +31,36 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.api.LogDescriptor;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.OAuthCredential;
 import com.google.firebase.auth.OAuthProvider;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.prady.codeheist.fragments.EmailVerificationFragment;
+import com.prady.codeheist.fragments.SignupFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AuthActivity extends AppCompatActivity {
+public class AuthActivity extends AppCompatActivity  {
 
 
     private GoogleSignInClient mGoogleSignInClient;
@@ -55,7 +68,7 @@ public class AuthActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    private static int RC_SIGN_IN = 101;
+    private static final int RC_SIGN_IN = 101;
 
     @BindView(R.id.signin_google)
     CircularImageView mSignInWithGoogle;
@@ -75,9 +88,32 @@ public class AuthActivity extends AppCompatActivity {
     @BindView(R.id.password_et)
     EditText mPassword;
 
+    @BindView(R.id.signup_button)
+    MaterialButton mSignUpButton;
+
+    @BindView(R.id.forgot_password_button)
+    MaterialButton mForgotPasswordButton;
+
+    @BindView(R.id.progress_tv)
+    TextView mProgressTv;
+
+    @BindView(R.id.auth_progress)
+    ProgressBar mAuthProgress;
+
     CallbackManager mCallbackManager;
 
     OAuthProvider.Builder mGitAuthProvider;
+
+    SignupFragment signupFragment;
+    EmailVerificationFragment emailVerificationFragment;
+
+    String phoneAuthVerificationId;
+    PhoneAuthProvider.ForceResendingToken mPhoneAuthResendToken;
+
+    String email, password, uname;
+
+    private static final  int RC_SIGN_UP = 701;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,23 +131,18 @@ public class AuthActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            Intent intent = new Intent(AuthActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
+            updateUI(user);
         }
     }
 
     private void init() {
 
         mCallbackManager = CallbackManager.Factory.create();
-//        LoginButton loginButton = findViewById(R.id.signin_facebook);
-//        loginButton.setPermissions(new String[]{"email", "public_profile"});
         LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d("USER_FB", "SUCCESS: " + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
-                //
             }
 
             @Override
@@ -130,6 +161,8 @@ public class AuthActivity extends AppCompatActivity {
         mSignInWithFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mAuthProgress.setVisibility(View.VISIBLE);
+                mProgressTv.setVisibility(View.VISIBLE);
                 LoginManager.getInstance().logInWithReadPermissions(AuthActivity.this,
                         Arrays.asList(new String[]{"user_photos", "email", "user_birthday", "public_profile"}));
             }
@@ -140,7 +173,8 @@ public class AuthActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                Toast.makeText(AuthActivity.this,"Clicked",Toast.LENGTH_SHORT).show();
-
+                mAuthProgress.setVisibility(View.VISIBLE);
+                mProgressTv.setVisibility(View.VISIBLE);
                 initGoogleAuth();
                 signInWithGoogle();
             }
@@ -160,6 +194,8 @@ public class AuthActivity extends AppCompatActivity {
         mSignInWithGithub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mAuthProgress.setVisibility(View.VISIBLE);
+                mProgressTv.setVisibility(View.VISIBLE);
                 signInWithGit();
             }
         });
@@ -167,27 +203,50 @@ public class AuthActivity extends AppCompatActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String email = mEmail.getText().toString().trim();
+                String password = mPassword.getText().toString().trim();
+                mAuthProgress.setVisibility(View.VISIBLE);
+                mProgressTv.setVisibility(View.VISIBLE);
+                signInWithEmailPassword(email, password);
+            }
+        });
 
+        mForgotPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        mSignUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(AuthActivity.this,SignUpActivity.class);
+                startActivityForResult(intent,RC_SIGN_UP);
             }
         });
 
     }
 
-    private void signInWithEmailPassword(String email, String password){
+    private void signInWithEmailPassword(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("USER_EP", "signInWithEmail:success");
+                            Log.d("USER_EP", "signInWithEmail:success: " + mAuth.getCurrentUser().isEmailVerified());
                             FirebaseUser user = mAuth.getCurrentUser();
-//                            updateUI(user);
+                            mProgressTv.setVisibility(View.GONE);
+                            mAuthProgress.setVisibility(View.GONE);
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("USER_EP_FAIL", "signInWithEmail:failure", task.getException());
                             Toast.makeText(AuthActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            mProgressTv.setVisibility(View.GONE);
+                            mAuthProgress.setVisibility(View.GONE);
 //                            updateUI(null);
                             // ...
                         }
@@ -210,9 +269,12 @@ public class AuthActivity extends AppCompatActivity {
                                     // authResult.getAdditionalUserInfo().getProfile().
                                     // The OAuth access token can also be retrieved:
                                     // authResult.getCredential().getAccessToken().
-                                    Log.d("USER_GIT",authResult.getAdditionalUserInfo().getProfile().toString());
+                                    Log.d("USER_GIT", ": " + mAuth.getCurrentUser().isEmailVerified());
                                     AuthCredential credential = authResult.getCredential();
-                                    Log.d("USER_GIT_TOKEN",credential.toString());
+                                    Log.d("USER_GIT_TOKEN", credential.toString());
+                                    mProgressTv.setVisibility(View.GONE);
+                                    mAuthProgress.setVisibility(View.GONE);
+                                    updateUI(mAuth.getCurrentUser());
                                 }
                             })
                     .addOnFailureListener(
@@ -220,7 +282,10 @@ public class AuthActivity extends AppCompatActivity {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     // Handle failure.
-                                    Log.d("USER_GIT","ERROR: "+e.getMessage());
+                                    Log.d("USER_GIT", "ERROR: " + e.getMessage());
+                                    Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                                    mProgressTv.setVisibility(View.GONE);
+                                    mAuthProgress.setVisibility(View.GONE);
                                 }
                             });
         } else {
@@ -237,8 +302,12 @@ public class AuthActivity extends AppCompatActivity {
                                     // authResult.getAdditionalUserInfo().getProfile().
                                     // The OAuth access token can also be retrieved:
                                     // authResult.getCredential().getAccessToken().
-                                    Log.d("USER_GIT",authResult.getAdditionalUserInfo().getProfile().toString());
-                                    Log.d("USER_GIT_TOKEN",authResult.getCredential().toString());
+//                                    Log.d("USER_GIT", authResult.getAdditionalUserInfo().getProfile().toString());
+                                    Log.d("USER_GIT", ": " + mAuth.getCurrentUser().isEmailVerified());
+                                    Log.d("USER_GIT_TOKEN", authResult.getCredential().toString());
+                                    mProgressTv.setVisibility(View.GONE);
+                                    mAuthProgress.setVisibility(View.GONE);
+                                    updateUI(mAuth.getCurrentUser());
                                 }
                             })
                     .addOnFailureListener(
@@ -246,7 +315,10 @@ public class AuthActivity extends AppCompatActivity {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     // Handle failure.
-                                    Log.d("USER_GIT","ERROR: "+e.getMessage());
+                                    Log.d("USER_GIT", "ERROR: " + e.getMessage());
+                                    Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                                    mProgressTv.setVisibility(View.GONE);
+                                    mAuthProgress.setVisibility(View.GONE);
                                 }
                             });
         }
@@ -262,14 +334,20 @@ public class AuthActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("USER_FB", "signInWithCredential:success");
+                            Log.d("USER_FB", "signInWithCredential:success " + mAuth.getCurrentUser().isEmailVerified());
                             FirebaseUser user = mAuth.getCurrentUser();
-//                            updateUI(user);
+                            Log.d("USER_FB", user.getPhotoUrl().toString() + " " + user.getProviderId());
+                            mProgressTv.setVisibility(View.GONE);
+                            mAuthProgress.setVisibility(View.GONE);
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("USER_FB", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(AuthActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(AuthActivity.this, "Authentication failed.",
+//                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AuthActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                            mProgressTv.setVisibility(View.GONE);
+                            mAuthProgress.setVisibility(View.GONE);
 //                            updateUI(null);
                         }
 
@@ -301,10 +379,20 @@ public class AuthActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 Log.d("USER_G", "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
+
             } catch (ApiException e) {
+                Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
                 Log.w("USER_G", "Google sign in failed : " + e.getMessage());
+                mProgressTv.setVisibility(View.GONE);
+                mAuthProgress.setVisibility(View.GONE);
             }
-        } else {
+        }
+        else if(requestCode == RC_SIGN_UP)
+        {
+            if(resultCode == RESULT_OK)
+                updateUI(mAuth.getCurrentUser());
+        }
+        else {
             //facebook
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
@@ -317,14 +405,19 @@ public class AuthActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d("USER_S", "GOOGLE_SIGN_IN_SUCCESSFULL");
+                            Log.d("USER_S", "GOOGLE_SIGN_IN_SUCCESSFULL : " + mAuth.getCurrentUser().isEmailVerified());
                             Toast.makeText(AuthActivity.this, "Google sign in successfull", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.d("USER_D", "details: " + user.getDisplayName() + " : " + user.getPhoneNumber() + " : " + user.getPhotoUrl());
-                            mAuth.signOut();
+                            mProgressTv.setVisibility(View.GONE);
+                            mAuthProgress.setVisibility(View.GONE);
+                            updateUI(user);
+//                            mAuth.signOut();
                         } else {
                             Log.d("USER_S", "FAILED: " + task.getException().getMessage());
                             Toast.makeText(AuthActivity.this, "Google sign in failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            mProgressTv.setVisibility(View.GONE);
+                            mAuthProgress.setVisibility(View.GONE);
                         }
                     }
                 })
@@ -333,7 +426,16 @@ public class AuthActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
                         Log.d("USER_S", "Error: " + e.getMessage());
                         Toast.makeText(AuthActivity.this, "Google sign in error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        mProgressTv.setVisibility(View.GONE);
+                        mAuthProgress.setVisibility(View.GONE);
                     }
                 });
+    }
+
+    private void updateUI(FirebaseUser user)
+    {
+        Intent intent = new Intent(AuthActivity.this,HomeActivity.class);
+        startActivity(intent);
+        finishAfterTransition();
     }
 }
