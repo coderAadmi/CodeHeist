@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -100,17 +101,12 @@ public class AuthActivity extends AppCompatActivity  {
     @BindView(R.id.auth_progress)
     ProgressBar mAuthProgress;
 
+    @BindView(R.id.login_with_phone)
+            MaterialButton mLoginPhone;
+
     CallbackManager mCallbackManager;
 
     OAuthProvider.Builder mGitAuthProvider;
-
-    SignupFragment signupFragment;
-    EmailVerificationFragment emailVerificationFragment;
-
-    String phoneAuthVerificationId;
-    PhoneAuthProvider.ForceResendingToken mPhoneAuthResendToken;
-
-    String email, password, uname;
 
     private static final  int RC_SIGN_UP = 701;
 
@@ -204,7 +200,17 @@ public class AuthActivity extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
                 String email = mEmail.getText().toString().trim();
-                String password = mPassword.getText().toString().trim();
+                if(!isValidEmail(email) || email.length()<6)
+                {
+                    Toast.makeText(AuthActivity.this,"Please enter valid email or username",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String password = mPassword.getText().toString();
+                if(password.length()<8)
+                {
+                    Toast.makeText(AuthActivity.this,"Please enter valid password",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mAuthProgress.setVisibility(View.VISIBLE);
                 mProgressTv.setVisibility(View.VISIBLE);
                 signInWithEmailPassword(email, password);
@@ -214,7 +220,8 @@ public class AuthActivity extends AppCompatActivity  {
         mForgotPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Toast.makeText(AuthActivity.this,"Feature under development",Toast.LENGTH_SHORT).show();
+                return;
             }
         });
 
@@ -226,6 +233,28 @@ public class AuthActivity extends AppCompatActivity  {
             }
         });
 
+        mLoginPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(AuthActivity.this,SignUpActivity.class);
+                intent.putExtra("LOG_IN",true);
+                startActivityForResult(intent,RC_SIGN_UP);
+            }
+        });
+
+    }
+
+    public static boolean isValidEmail(String email)
+    {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        if (email == null)
+            return false;
+        return pat.matcher(email).matches();
     }
 
     private void signInWithEmailPassword(String email, String password) {
