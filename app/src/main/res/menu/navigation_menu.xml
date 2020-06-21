@@ -25,6 +25,9 @@
         android:icon="@drawable/app_logo"
         android:title="About"/>
 
+    <item android:id="@+id/signout"
+        android:title="Signout"/>
+
     <item android:title="CodeHeist by Prady"/>
 
 </menu>

@@ -31,6 +31,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -106,6 +107,8 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
     @BindView(R.id.remove_img_view)
     AppCompatImageView mRemoveImgView;
 
+    @BindView(R.id.spinner_img)
+    LottieAnimationView mAnimationView;
 
     AnswerEditorListAdapter answerListAdapter;
 
@@ -153,6 +156,15 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
     }
 
     private void init() {
+
+//        "https://assets5.lottiefiles.com/packages/lf20_PEeHJO.json"
+//        "https://assets5.lottiefiles.com/packages/lf20_5vQq5z.json"
+//        "https://assets1.lottiefiles.com/datafiles/mvz0FxzvBshJT8H/data.json"
+//        mAnimationView.setAnimationFromUrl("https://assets7.lottiefiles.com/datafiles/ynC3pG0lWGckLBx/data.json");
+//        mAnimationView.setAnimationFromUrl("https://assets5.lottiefiles.com/packages/lf20_5vQq5z.json");
+        mAnimationView.setScale(2.5f);
+
+
         imgUploadedCount = 0;
         isCameraPermitted = false;
         setSupportActionBar(mToolbar);

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +50,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.prady.codeheist.fragments.EmailVerificationFragment;
+import com.prady.codeheist.fragments.ProgressFragment;
 import com.prady.codeheist.fragments.SignupFragment;
 
 import java.util.ArrayList;
@@ -104,6 +106,9 @@ public class AuthActivity extends AppCompatActivity  {
     @BindView(R.id.login_with_phone)
             MaterialButton mLoginPhone;
 
+    @BindView(R.id.signup_contianer)
+            RelativeLayout mContainer;
+
     CallbackManager mCallbackManager;
 
     OAuthProvider.Builder mGitAuthProvider;
@@ -129,6 +134,14 @@ public class AuthActivity extends AppCompatActivity  {
         if (user != null) {
             updateUI(user);
         }
+    }
+
+    private void inflateProgressFragment()
+    {
+        mContainer.setVisibility(View.VISIBLE);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.signup_contianer,new ProgressFragment())
+                .commit();
     }
 
     private void init() {
@@ -159,6 +172,8 @@ public class AuthActivity extends AppCompatActivity  {
             public void onClick(View v) {
                 mAuthProgress.setVisibility(View.VISIBLE);
                 mProgressTv.setVisibility(View.VISIBLE);
+                inflateProgressFragment();
+
                 LoginManager.getInstance().logInWithReadPermissions(AuthActivity.this,
                         Arrays.asList(new String[]{"user_photos", "email", "user_birthday", "public_profile"}));
             }
@@ -171,6 +186,8 @@ public class AuthActivity extends AppCompatActivity  {
 //                Toast.makeText(AuthActivity.this,"Clicked",Toast.LENGTH_SHORT).show();
                 mAuthProgress.setVisibility(View.VISIBLE);
                 mProgressTv.setVisibility(View.VISIBLE);
+                inflateProgressFragment();
+
                 initGoogleAuth();
                 signInWithGoogle();
             }
@@ -192,6 +209,8 @@ public class AuthActivity extends AppCompatActivity  {
             public void onClick(View v) {
                 mAuthProgress.setVisibility(View.VISIBLE);
                 mProgressTv.setVisibility(View.VISIBLE);
+                inflateProgressFragment();
+
                 signInWithGit();
             }
         });
@@ -213,6 +232,8 @@ public class AuthActivity extends AppCompatActivity  {
                 }
                 mAuthProgress.setVisibility(View.VISIBLE);
                 mProgressTv.setVisibility(View.VISIBLE);
+                inflateProgressFragment();
+
                 signInWithEmailPassword(email, password);
             }
         });

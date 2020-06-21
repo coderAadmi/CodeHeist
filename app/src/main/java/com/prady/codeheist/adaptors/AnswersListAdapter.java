@@ -111,7 +111,7 @@ public class AnswersListAdapter extends RecyclerView.Adapter<AnswersListAdapter.
                         answerList.get(
                                 holder.getAdapterPosition()).getMap(),
                         context,
-                        true
+                        false,true
                 );
 
                 holder.mAnswerMapList.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));

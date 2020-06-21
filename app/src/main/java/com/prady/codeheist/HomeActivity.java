@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -99,6 +100,7 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Toast.makeText(HomeActivity.this,"Feature under development",Toast.LENGTH_SHORT).show();
+                FirebaseAuth.getInstance().signOut();
                 return false;
             }
         });

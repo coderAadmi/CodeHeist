@@ -55,7 +55,7 @@ public class SplashActivity extends AppCompatActivity {
                         editor.apply();
                         editor.commit();
 
-                        Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+                        Intent intent = new Intent(SplashActivity.this, AuthActivity.class);
                         startActivity(intent);
                         finish();
                     }

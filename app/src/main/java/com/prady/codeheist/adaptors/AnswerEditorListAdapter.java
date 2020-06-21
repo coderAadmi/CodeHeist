@@ -50,7 +50,7 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
     TreeMap<String, String> textList;
     HashMap<Integer,Integer> ansImageMap;
     Context context;
-    boolean isQuestionListView;
+    boolean isQuestionListView,isAnswerCard;
 
     private void saveImgToDB(Bitmap image,final int pos){
         Timestamp timestamp = new Timestamp(new Date());
@@ -110,16 +110,19 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
         return textList;
     }
 
-    public AnswerEditorListAdapter(TreeMap<String, String> textList, Context context, boolean isQuestionListView) {
+    public AnswerEditorListAdapter(TreeMap<String, String> textList, Context context, boolean isQuestionListView, boolean isAnswerCard) {
         this.textList = textList;
         this.context = context;
         this.isQuestionListView = isQuestionListView;
+        this.isAnswerCard = isAnswerCard;
         ansImageMap = new HashMap<>();
 //        mAnsListListener = (OnAnswerListUpdatedListener) context;
 
     }
 
     public AnswerEditorListAdapter(Context context) {
+        isQuestionListView = false;
+        isAnswerCard = false;
         this.textList = new TreeMap<>();
         this.images = new ArrayList<>();
         mAnsListListener = (OnAnswerListUpdatedListener) context;
@@ -145,15 +148,21 @@ public class AnswerEditorListAdapter extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (textList.get(position + "").substring(0, 4).equals("tex:")){
+            ((AnswerTextViewHolder) holder).mAnsTex.setText(textList.get(position + "").substring(5));
+            Log.d("ANS_CARD","TEXT ADDED");
             if(isQuestionListView)
             {
                 ((AnswerTextViewHolder) holder).mAnsTex.setTextColor(Color.WHITE);
             }
-            ((AnswerTextViewHolder) holder).mAnsTex.setText(textList.get(position + "").substring(5));
+            else
+            {
+                ((AnswerTextViewHolder) holder).mAnsTex.setTextColor(Color.BLACK);
+            }
+
         }
         else {
 //            ((AnswerImageViewHolder)holder).mImgView.setImageBitmap(images.get(Integer.parseInt(textList.get(position+"").substring(5))));
-            if (isQuestionListView) {
+            if (isQuestionListView || isAnswerCard) {
                 Log.d("DATA_IMG_Q",textList.get(position+"").substring(5));
                 Glide.with(holder.itemView.getContext())
                         .load(textList.get(position+"").substring(5))

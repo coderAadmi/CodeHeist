@@ -103,7 +103,7 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
 
         mQuestionTitle.setText(questionTitle.getTitle());
         mQuestionListView.setLayoutManager(new LinearLayoutManager(this));
-        questionListAdapter = new AnswerEditorListAdapter(questionTitle.getAnswerMap(), this, true);
+        questionListAdapter = new AnswerEditorListAdapter(questionTitle.getAnswerMap(), this, true,false);
         mQuestionListView.setAdapter(questionListAdapter);
 
         mAnswerCount.setText("Answers");
