@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -41,7 +44,11 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.OnTopicClickedListener {
+public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.OnTopicClickedListener, View.OnTouchListener {
+
+    float dX;
+    float dY;
+    int lastAction;
 
     @BindView(R.id.topic_list_view)
     RecyclerView mTopicListView;
@@ -75,6 +82,13 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
         init();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_menu,menu);
+        return true;
+    }
+
     private void init()
     {
         SharedPreferences sharedPreferences = getSharedPreferences("USER",MODE_PRIVATE);
@@ -96,11 +110,14 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
                 askQuestion();
             }
         });
+
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Toast.makeText(HomeActivity.this,"Feature under development",Toast.LENGTH_SHORT).show();
-                FirebaseAuth.getInstance().signOut();
+//                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(HomeActivity.this,MyProfileActivity.class);
+                startActivity(intent);
                 return false;
             }
         });
@@ -126,6 +143,11 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
             if(mDrawer.isDrawerOpen(Gravity.LEFT))
                 mDrawer.closeDrawer(Gravity.LEFT);
             else mDrawer.openDrawer(Gravity.LEFT);
+        }
+        if(item.getItemId()==R.id.ask_question_menu)
+        {
+//            Toast.makeText(HomeActivity.this,"Adding feature",Toast.LENGTH_SHORT).show();
+            askQuestion();
         }
         return false;
     }
@@ -169,4 +191,32 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
         intent.putExtra("Q_TITLE",questionTitle);
         startActivity(intent);
     }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                dX = view.getX() - event.getRawX();
+                dY = view.getY() - event.getRawY();
+                lastAction = MotionEvent.ACTION_DOWN;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                view.setY(event.getRawY() + dY);
+                view.setX(event.getRawX() + dX);
+                lastAction = MotionEvent.ACTION_MOVE;
+                break;
+
+            case MotionEvent.ACTION_UP:
+                if (lastAction == MotionEvent.ACTION_DOWN)
+//                    askQuestion();
+//                    Toast.makeText(HomeActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
+                break;
+
+            default:
+                return false;
+        }
+        return true;
+    }
+
 }

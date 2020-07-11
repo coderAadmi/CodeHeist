@@ -91,9 +91,6 @@ public class AuthActivity extends AppCompatActivity  {
     @BindView(R.id.password_et)
     EditText mPassword;
 
-    @BindView(R.id.signup_button)
-    MaterialButton mSignUpButton;
-
     @BindView(R.id.forgot_password_button)
     MaterialButton mForgotPasswordButton;
 
@@ -114,6 +111,8 @@ public class AuthActivity extends AppCompatActivity  {
     OAuthProvider.Builder mGitAuthProvider;
 
     private static final  int RC_SIGN_UP = 701;
+
+    private ProgressFragment mProgressFragment;
 
 
     @Override
@@ -138,9 +137,25 @@ public class AuthActivity extends AppCompatActivity  {
 
     private void inflateProgressFragment()
     {
+        mAuthProgress.setVisibility(View.VISIBLE);
+        mProgressTv.setVisibility(View.VISIBLE);
         mContainer.setVisibility(View.VISIBLE);
+        if(mProgressFragment == null)
+        {
+            mProgressFragment = new ProgressFragment();
+        }
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.signup_contianer,new ProgressFragment())
+                .add(R.id.signup_contianer,mProgressFragment)
+                .commit();
+    }
+
+    private void hideProgressFragment()
+    {
+        mAuthProgress.setVisibility(View.GONE);
+        mProgressTv.setVisibility(View.GONE);
+        mContainer.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction()
+                .remove(mProgressFragment)
                 .commit();
     }
 
@@ -157,11 +172,15 @@ public class AuthActivity extends AppCompatActivity  {
             @Override
             public void onCancel() {
                 Log.d("USER_FB", "CANCELED ");
+                Toast.makeText(AuthActivity.this,"You canceled facebook signin",Toast.LENGTH_SHORT).show();
+                hideProgressFragment();
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.d("USER_FB", "ERROR: " + error);
+                Toast.makeText(AuthActivity.this,"Error occured: "+error,Toast.LENGTH_SHORT).show();
+                hideProgressFragment();
             }
         });
 
@@ -170,8 +189,7 @@ public class AuthActivity extends AppCompatActivity  {
         mSignInWithFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAuthProgress.setVisibility(View.VISIBLE);
-                mProgressTv.setVisibility(View.VISIBLE);
+
                 inflateProgressFragment();
 
                 LoginManager.getInstance().logInWithReadPermissions(AuthActivity.this,
@@ -184,8 +202,6 @@ public class AuthActivity extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
 //                Toast.makeText(AuthActivity.this,"Clicked",Toast.LENGTH_SHORT).show();
-                mAuthProgress.setVisibility(View.VISIBLE);
-                mProgressTv.setVisibility(View.VISIBLE);
                 inflateProgressFragment();
 
                 initGoogleAuth();
@@ -207,8 +223,6 @@ public class AuthActivity extends AppCompatActivity  {
         mSignInWithGithub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAuthProgress.setVisibility(View.VISIBLE);
-                mProgressTv.setVisibility(View.VISIBLE);
                 inflateProgressFragment();
 
                 signInWithGit();
@@ -230,8 +244,7 @@ public class AuthActivity extends AppCompatActivity  {
                     Toast.makeText(AuthActivity.this,"Please enter valid password",Toast.LENGTH_SHORT).show();
                     return;
                 }
-                mAuthProgress.setVisibility(View.VISIBLE);
-                mProgressTv.setVisibility(View.VISIBLE);
+
                 inflateProgressFragment();
 
                 signInWithEmailPassword(email, password);
@@ -246,13 +259,6 @@ public class AuthActivity extends AppCompatActivity  {
             }
         });
 
-        mSignUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(AuthActivity.this,SignUpActivity.class);
-                startActivityForResult(intent,RC_SIGN_UP);
-            }
-        });
 
         mLoginPhone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -287,16 +293,17 @@ public class AuthActivity extends AppCompatActivity  {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("USER_EP", "signInWithEmail:success: " + mAuth.getCurrentUser().isEmailVerified());
                             FirebaseUser user = mAuth.getCurrentUser();
-                            mProgressTv.setVisibility(View.GONE);
-                            mAuthProgress.setVisibility(View.GONE);
+
+                            hideProgressFragment();
+
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("USER_EP_FAIL", "signInWithEmail:failure", task.getException());
                             Toast.makeText(AuthActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            mProgressTv.setVisibility(View.GONE);
-                            mAuthProgress.setVisibility(View.GONE);
+
+                            hideProgressFragment();
 //                            updateUI(null);
                             // ...
                         }
@@ -322,8 +329,8 @@ public class AuthActivity extends AppCompatActivity  {
                                     Log.d("USER_GIT", ": " + mAuth.getCurrentUser().isEmailVerified());
                                     AuthCredential credential = authResult.getCredential();
                                     Log.d("USER_GIT_TOKEN", credential.toString());
-                                    mProgressTv.setVisibility(View.GONE);
-                                    mAuthProgress.setVisibility(View.GONE);
+
+                                    hideProgressFragment();
                                     updateUI(mAuth.getCurrentUser());
                                 }
                             })
@@ -334,8 +341,7 @@ public class AuthActivity extends AppCompatActivity  {
                                     // Handle failure.
                                     Log.d("USER_GIT", "ERROR: " + e.getMessage());
                                     Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
-                                    mProgressTv.setVisibility(View.GONE);
-                                    mAuthProgress.setVisibility(View.GONE);
+                                    hideProgressFragment();
                                 }
                             });
         } else {
@@ -355,8 +361,8 @@ public class AuthActivity extends AppCompatActivity  {
 //                                    Log.d("USER_GIT", authResult.getAdditionalUserInfo().getProfile().toString());
                                     Log.d("USER_GIT", ": " + mAuth.getCurrentUser().isEmailVerified());
                                     Log.d("USER_GIT_TOKEN", authResult.getCredential().toString());
-                                    mProgressTv.setVisibility(View.GONE);
-                                    mAuthProgress.setVisibility(View.GONE);
+
+                                    hideProgressFragment();
                                     updateUI(mAuth.getCurrentUser());
                                 }
                             })
@@ -367,8 +373,7 @@ public class AuthActivity extends AppCompatActivity  {
                                     // Handle failure.
                                     Log.d("USER_GIT", "ERROR: " + e.getMessage());
                                     Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
-                                    mProgressTv.setVisibility(View.GONE);
-                                    mAuthProgress.setVisibility(View.GONE);
+                                    hideProgressFragment();
                                 }
                             });
         }
@@ -387,8 +392,7 @@ public class AuthActivity extends AppCompatActivity  {
                             Log.d("USER_FB", "signInWithCredential:success " + mAuth.getCurrentUser().isEmailVerified());
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.d("USER_FB", user.getPhotoUrl().toString() + " " + user.getProviderId());
-                            mProgressTv.setVisibility(View.GONE);
-                            mAuthProgress.setVisibility(View.GONE);
+                            hideProgressFragment();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -396,8 +400,7 @@ public class AuthActivity extends AppCompatActivity  {
 //                            Toast.makeText(AuthActivity.this, "Authentication failed.",
 //                                    Toast.LENGTH_SHORT).show();
                             Toast.makeText(AuthActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                            mProgressTv.setVisibility(View.GONE);
-                            mAuthProgress.setVisibility(View.GONE);
+                            hideProgressFragment();
 //                            updateUI(null);
                         }
 
@@ -433,8 +436,7 @@ public class AuthActivity extends AppCompatActivity  {
             } catch (ApiException e) {
                 Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
                 Log.w("USER_G", "Google sign in failed : " + e.getMessage());
-                mProgressTv.setVisibility(View.GONE);
-                mAuthProgress.setVisibility(View.GONE);
+                hideProgressFragment();
             }
         }
         else if(requestCode == RC_SIGN_UP)
@@ -459,15 +461,13 @@ public class AuthActivity extends AppCompatActivity  {
                             Toast.makeText(AuthActivity.this, "Google sign in successfull", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.d("USER_D", "details: " + user.getDisplayName() + " : " + user.getPhoneNumber() + " : " + user.getPhotoUrl());
-                            mProgressTv.setVisibility(View.GONE);
-                            mAuthProgress.setVisibility(View.GONE);
+                            hideProgressFragment();
                             updateUI(user);
 //                            mAuth.signOut();
                         } else {
                             Log.d("USER_S", "FAILED: " + task.getException().getMessage());
                             Toast.makeText(AuthActivity.this, "Google sign in failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            mProgressTv.setVisibility(View.GONE);
-                            mAuthProgress.setVisibility(View.GONE);
+                            hideProgressFragment();
                         }
                     }
                 })
@@ -476,8 +476,7 @@ public class AuthActivity extends AppCompatActivity  {
                     public void onFailure(@NonNull Exception e) {
                         Log.d("USER_S", "Error: " + e.getMessage());
                         Toast.makeText(AuthActivity.this, "Google sign in error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        mProgressTv.setVisibility(View.GONE);
-                        mAuthProgress.setVisibility(View.GONE);
+                        hideProgressFragment();
                     }
                 });
     }

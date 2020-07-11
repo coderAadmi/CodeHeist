@@ -29,6 +29,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.prady.codeheist.fragments.EmailVerificationFragment;
+import com.prady.codeheist.fragments.ProgressFragment;
 import com.prady.codeheist.fragments.SignupFragment;
 
 import java.util.concurrent.TimeUnit;
@@ -52,7 +53,7 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
     @BindView(R.id.phone_et)
     EditText mPhone;
 
-    String email, password, uname;
+    String email, password, uname, phoneNumber;
 
     private  EmailVerificationFragment emailVerificationFragment;
     private SignupFragment signupFragment;
@@ -63,6 +64,8 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
     private FirebaseAuth mAuth;
 
     private boolean isLoggingIn;
+
+    private ProgressFragment mProgressFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,16 +89,41 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
                 String phone = mPhone.getText().toString();
                 if(!isValid(phone))
                 {
+                    Toast.makeText(SignUpActivity.this,"Please input correct phone number",Toast.LENGTH_SHORT).show();
                     mHelperText.setVisibility(View.VISIBLE);
                     return;
                 }
+                mHelperText.setVisibility(View.GONE);
                 sendOtp("+91"+phone);
             }
         });
     }
 
+    private void inflateProgressFragment()
+    {
+        if(mProgressFragment == null)
+            mProgressFragment = new ProgressFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_container,mProgressFragment)
+                .commit();
+    }
+
+    private void hideProgressFragment()
+    {
+        if(mProgressFragment!=null)
+        {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(mProgressFragment)
+                    .commit();
+            mProgressFragment = null;
+        }
+    }
+
     private void sendOtp(String phone)
     {
+        phoneNumber = phone;
         PhoneAuthProvider.getInstance()
                 .verifyPhoneNumber(
                         phone,
@@ -116,6 +144,7 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
                             @Override
                             public void onVerificationFailed(@NonNull FirebaseException e) {
                                 Toast.makeText(SignUpActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+                                hideProgressFragment();
                             }
 
                             @Override
@@ -124,9 +153,10 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
                                 mVerificationId = s;
                                 mOtpResendToken = forceResendingToken;
                                 emailVerificationFragment = new EmailVerificationFragment();
+                                emailVerificationFragment.setPhoneText(phone);
+                                hideProgressFragment();
                                 getSupportFragmentManager()
                                         .beginTransaction()
-                                        .addToBackStack("AUTH_SIGNUP")
                                         .add(R.id.fragment_container,emailVerificationFragment)
                                         .commit();
                             }
@@ -136,38 +166,6 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
 
     private void signInWithPhone(PhoneAuthCredential credential)
     {
-        if(isLoggingIn)
-        {
-            mAuth.signInWithCredential(credential)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if(task.isSuccessful())
-                            {
-                                if(emailVerificationFragment!=null)
-                                {
-                                    getSupportFragmentManager()
-                                            .beginTransaction()
-                                            .remove(emailVerificationFragment)
-                                            .commit();
-                                    emailVerificationFragment = null;
-                                }
-                                finishWithResult(0);
-                            }
-                            else
-                            {
-                                //show error message to user
-                                Log.d("USER_SIGNUP",task.getException().getMessage());
-                                if(task.getException()  instanceof FirebaseAuthInvalidCredentialsException)
-                                {
-                                    Toast.makeText(SignUpActivity.this,"Invalid Otp Entered",Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }
-                    });
-            return;
-        }
-
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -176,17 +174,24 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
                         {
                             if(emailVerificationFragment!=null)
                             {
+                                emailVerificationFragment.cancelCountDown();
                                 getSupportFragmentManager()
                                         .beginTransaction()
                                         .remove(emailVerificationFragment)
                                         .commit();
                                 emailVerificationFragment = null;
                             }
-                            signupFragment = new SignupFragment();
-                            getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .add(R.id.fragment_container,signupFragment)
-                                    .commit();
+                            FirebaseUser user  = mAuth.getCurrentUser();
+                            if(user.getDisplayName()==null) {
+                                Toast.makeText(SignUpActivity.this,"You are new, let's signup", Toast.LENGTH_SHORT).show();
+                                signupFragment = new SignupFragment();
+                                getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .add(R.id.fragment_container, signupFragment)
+                                        .commit();
+                            }
+                            else
+                                finishWithResult(0);
                         }
                         else
                         {
@@ -194,6 +199,7 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
                             Log.d("USER_SIGNUP",task.getException().getMessage());
                             if(task.getException()  instanceof FirebaseAuthInvalidCredentialsException)
                             {
+                                emailVerificationFragment.setWrongOtpMessage();
                                 Toast.makeText(SignUpActivity.this,"Invalid Otp Entered",Toast.LENGTH_LONG).show();
                             }
                         }
@@ -226,7 +232,65 @@ public class SignUpActivity extends AppCompatActivity implements EmailVerificati
     }
 
     @Override
+    public void onResendOtpClicked() {
+        emailVerificationFragment.cancelCountDown();
+        getSupportFragmentManager().beginTransaction()
+                .remove(emailVerificationFragment)
+                .commit();
+        PhoneAuthProvider.getInstance()
+                .verifyPhoneNumber(
+                        phoneNumber,
+                        60L,
+                        TimeUnit.SECONDS,
+                        SignUpActivity.this,
+                        new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                            @Override
+                            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                                if(emailVerificationFragment!=null)
+                                {
+                                    emailVerificationFragment.setOtp(phoneAuthCredential.getSmsCode());
+                                    return;
+                                }
+                                signInWithPhone(phoneAuthCredential);
+                            }
+
+                            @Override
+                            public void onVerificationFailed(@NonNull FirebaseException e) {
+                                Toast.makeText(SignUpActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+                                hideProgressFragment();
+                            }
+
+                            @Override
+                            public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+//                                super.onCodeSent(s, forceResendingToken);
+                                mVerificationId = s;
+                                mOtpResendToken = forceResendingToken;
+                                emailVerificationFragment = new EmailVerificationFragment();
+                                emailVerificationFragment.setPhoneText(phoneNumber);
+                                hideProgressFragment();
+                                getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .add(R.id.fragment_container,emailVerificationFragment)
+                                        .commit();
+                            }
+                        }
+                ,mOtpResendToken);
+        //call resend otp
+    }
+
+    @Override
+    public void onChangePhoneClicked() {
+        //ask user if he wants to cancel or not.
+        emailVerificationFragment.cancelCountDown();
+        getSupportFragmentManager().beginTransaction()
+                .remove(emailVerificationFragment)
+                .commit();
+    }
+
+    @Override
     public void onSignUpButtonClicked(String email, String password, String uname) {
+
+        //Progress Fragment to be inflated here
         ProgressBar progressBar = new ProgressBar(SignUpActivity.this);
         progressBar.setIndeterminate(true);
         progressBar.setIndeterminateTintList(ColorStateList.valueOf(Color.BLUE));
