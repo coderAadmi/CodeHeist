@@ -32,32 +32,19 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
-import com.google.api.LogDescriptor;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.OAuthProvider;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
 import com.mikhaellopez.circularimageview.CircularImageView;
-import com.prady.codeheist.fragments.EmailVerificationFragment;
 import com.prady.codeheist.fragments.ProgressFragment;
-import com.prady.codeheist.fragments.SignupFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import butterknife.BindView;
@@ -93,6 +80,9 @@ public class AuthActivity extends AppCompatActivity  {
 
     @BindView(R.id.forgot_password_button)
     MaterialButton mForgotPasswordButton;
+
+    @BindView(R.id.signup_button)
+    MaterialButton mSignUpButton;
 
     @BindView(R.id.progress_tv)
     TextView mProgressTv;
@@ -232,22 +222,24 @@ public class AuthActivity extends AppCompatActivity  {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = mEmail.getText().toString().trim();
-                if(!isValidEmail(email) || email.length()<6)
-                {
-                    Toast.makeText(AuthActivity.this,"Please enter valid email or username",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                String password = mPassword.getText().toString();
-                if(password.length()<8)
-                {
-                    Toast.makeText(AuthActivity.this,"Please enter valid password",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                inflateProgressFragment();
-
-                signInWithEmailPassword(email, password);
+                Toast.makeText(AuthActivity.this,"Feature under development.Please sign in through facebook , github or google.",Toast.LENGTH_SHORT).show();
+                return;
+//                String email = mEmail.getText().toString().trim();
+//                if(!isValidEmail(email) || email.length()<6)
+//                {
+//                    Toast.makeText(AuthActivity.this,"Please enter valid email or username",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                String password = mPassword.getText().toString();
+//                if(password.length()<8)
+//                {
+//                    Toast.makeText(AuthActivity.this,"Please enter valid password",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//
+//                inflateProgressFragment();
+//
+//                signInWithEmailPassword(email, password);
             }
         });
 
@@ -263,9 +255,18 @@ public class AuthActivity extends AppCompatActivity  {
         mLoginPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent= new Intent(AuthActivity.this,SignUpActivity.class);
-                intent.putExtra("LOG_IN",true);
-                startActivityForResult(intent,RC_SIGN_UP);
+                Toast.makeText(AuthActivity.this,"Feature under development.Please sign in through facebook , github or google.",Toast.LENGTH_SHORT).show();
+                return;
+//                Intent intent= new Intent(AuthActivity.this, SignInViaPhoneActivity.class);
+//                intent.putExtra("LOG_IN",true);
+//                startActivityForResult(intent,RC_SIGN_UP);
+            }
+        });
+
+        mSignUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 
@@ -428,12 +429,12 @@ public class AuthActivity extends AppCompatActivity  {
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 Log.d("USER_G", "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
 
             } catch (ApiException e) {
+
                 Toast.makeText(AuthActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
                 Log.w("USER_G", "Google sign in failed : " + e.getMessage());
                 hideProgressFragment();
