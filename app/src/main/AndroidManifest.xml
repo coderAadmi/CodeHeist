@@ -31,12 +31,18 @@
             android:launchMode="singleTop"/>
         <activity android:name=".AuthActivity"
             android:launchMode="singleTop"/>
+        <activity android:name=".MyProfileActivity"
+            android:launchMode="singleTop"/>
+        <activity android:name=".SignUpActivity"
+            android:launchMode="singleTop"/>
+        <activity android:name=".MyQuestionsActivity"
+            android:launchMode="singleTop"/>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".SignUpActivity"
+        <activity android:name=".SignInViaPhoneActivity"
             android:launchMode="singleTop"/>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
