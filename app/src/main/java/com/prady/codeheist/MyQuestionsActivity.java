@@ -70,7 +70,7 @@ public class MyQuestionsActivity extends AppCompatActivity implements TopicListA
         user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore.getInstance()
                 .collection("question_titles")
-                .whereEqualTo("id",user.getUid())
+                .whereEqualTo("fromId",user.getUid())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -116,7 +116,7 @@ public class MyQuestionsActivity extends AppCompatActivity implements TopicListA
 
     @Override
     public void onTopicClicked(QuestionTitle questionTitle) {
-        Intent intent = new Intent(this,TopicProblemsActivity.class);
+        Intent intent = new Intent(this, AnswerActivity.class);
         intent.putExtra("Q_TITLE",questionTitle);
         startActivity(intent);
     }
