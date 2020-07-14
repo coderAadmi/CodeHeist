@@ -19,11 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -44,13 +42,12 @@ import com.prady.codeheist.datamodels.Reaction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class TopicProblemsActivity extends AppCompatActivity implements AnswersListAdapter.OnAnswerCardClickedListener {
+public class AnswerActivity extends AppCompatActivity implements AnswersListAdapter.OnAnswerCardClickedListener {
 
     @BindView(R.id.question_title)
     TextView mQuestionTitle;
@@ -136,7 +133,7 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if (e != null) {
-                            Toast.makeText(TopicProblemsActivity.this, "Some Error occured", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AnswerActivity.this, "Some Error occured", Toast.LENGTH_SHORT).show();
                             Log.d("DATA_ANS_FETCH", "ERROR: " + e.getMessage());
                             return;
                         }
@@ -179,8 +176,8 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
         if(reactionMap.containsKey(answer.getId()))
             return;
 
-        if (!Controller.isNetworkAvailable(TopicProblemsActivity.this)) {
-            Toast.makeText(TopicProblemsActivity.this, "No Internet Connection. Reactions won't work.", Toast.LENGTH_SHORT).show();
+        if (!Controller.isNetworkAvailable(AnswerActivity.this)) {
+            Toast.makeText(AnswerActivity.this, "No Internet Connection. Reactions won't work.", Toast.LENGTH_SHORT).show();
         }
 
         reactionMap.put(answer.getId(),true);
@@ -197,7 +194,7 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(!task.isSuccessful())
                         {
-                            Toast.makeText(TopicProblemsActivity.this,"Some error occured fetching reactions",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AnswerActivity.this,"Some error occured fetching reactions",Toast.LENGTH_SHORT).show();
                             return;
                         }
                         DocumentSnapshot doc = task.getResult();
@@ -213,15 +210,15 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d("DATA_REACTION","ERROR: "+e.getMessage());
-                Toast.makeText(TopicProblemsActivity.this,"Some error occured",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AnswerActivity.this,"Some error occured",Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public void onAnswerLiked(Answer answer, boolean isAnsDisliked, boolean isLiked) {
-        if (!Controller.isNetworkAvailable(TopicProblemsActivity.this)) {
-            Toast.makeText(TopicProblemsActivity.this, "No Internet Connection. Please check your internet connection.", Toast.LENGTH_SHORT).show();
+        if (!Controller.isNetworkAvailable(AnswerActivity.this)) {
+            Toast.makeText(AnswerActivity.this, "No Internet Connection. Please check your internet connection.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -275,8 +272,8 @@ public class TopicProblemsActivity extends AppCompatActivity implements AnswersL
 
     @Override
     public void onAnswerDisliked(Answer answer, boolean isAnsLiked, boolean isDisliked) {
-        if (!Controller.isNetworkAvailable(TopicProblemsActivity.this)) {
-            Toast.makeText(TopicProblemsActivity.this, "No Internet Connection. Please check your internet connection.", Toast.LENGTH_SHORT).show();
+        if (!Controller.isNetworkAvailable(AnswerActivity.this)) {
+            Toast.makeText(AnswerActivity.this, "No Internet Connection. Please check your internet connection.", Toast.LENGTH_SHORT).show();
             return;
         }
 
