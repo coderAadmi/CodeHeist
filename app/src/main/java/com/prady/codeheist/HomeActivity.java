@@ -4,19 +4,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -37,18 +39,12 @@ import com.prady.codeheist.datamodels.QuestionTitle;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.OnTopicClickedListener, View.OnTouchListener {
-
-    float dX;
-    float dY;
-    int lastAction;
+public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.OnTopicClickedListener {
 
     @BindView(R.id.topic_list_view)
     RecyclerView mTopicListView;
@@ -71,6 +67,9 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
 
     CircularImageView mProfileImg;
 
+    TextView mProfileName;
+    TextView mUsername;
+
     String name, username, userImg;
 
     @Override
@@ -80,6 +79,15 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
         getWindow().setStatusBarColor(Color.BLACK);
         ButterKnife.bind(this);
         init();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mDrawer.isDrawerOpen(GravityCompat.START))
+        {
+            mDrawer.closeDrawer(GravityCompat.START);
+        }
     }
 
     @Override
@@ -114,19 +122,59 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Toast.makeText(HomeActivity.this,"Feature under development",Toast.LENGTH_SHORT).show();
-//                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(HomeActivity.this,MyProfileActivity.class);
-                startActivity(intent);
+                Intent intent = null;
+               switch (item.getItemId())
+               {
+                   case R.id.signout_menu:
+                       signOut();
+                       break;
+                   case R.id.profile_menu:
+                       intent = new Intent(HomeActivity.this,MyProfileActivity.class);
+                       startActivity(intent);
+                       break;
+                   case R.id.about_menu:
+                       break;
+                   case R.id.my_ans_menu:
+                       intent = new Intent(HomeActivity.this, MyAnswersActivity.class);
+                       startActivity(intent);
+                       break;
+                   case R.id.my_questions_menu:
+                       intent = new Intent(HomeActivity.this,MyQuestionsActivity.class);
+                       startActivity(intent);
+                       break;
+                   case R.id.help:
+                       break;
+
+               }
                 return false;
             }
         });
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         View headerLayout = mNavigationView.getHeaderView(0);
         mProfileImg = headerLayout.findViewById(R.id.profile_img);
-        Glide.with(this)
-                .load(userImg)
-                .placeholder(R.drawable.app_logo)
-                .into(mProfileImg);
+        if(user.getPhotoUrl()!=null) {
+            Log.d("USER_IN","IMG: "+user.getPhotoUrl().toString());
+            Glide.with(this)
+                    .load(user.getPhotoUrl())
+                    .placeholder(R.drawable.app_logo)
+                    .into(mProfileImg);
+        }
+
+        mProfileName = headerLayout.findViewById(R.id.profile_name);
+        if(user.getDisplayName()!=null)
+        {
+            mProfileName.setText(user.getDisplayName());
+        }
+    }
+
+    private void signOut()
+    {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(HomeActivity.this,AuthActivity.class);
+        startActivity(intent);
+        finishAfterTransition();
     }
 
     private void askQuestion()
@@ -140,9 +188,9 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == android.R.id.home)
         {
-            if(mDrawer.isDrawerOpen(Gravity.LEFT))
-                mDrawer.closeDrawer(Gravity.LEFT);
-            else mDrawer.openDrawer(Gravity.LEFT);
+            if(mDrawer.isDrawerOpen(GravityCompat.START))
+                mDrawer.closeDrawer(GravityCompat.START);
+            else mDrawer.openDrawer(GravityCompat.START);
         }
         if(item.getItemId()==R.id.ask_question_menu)
         {
@@ -187,36 +235,11 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
 
     @Override
     public void onTopicClicked(QuestionTitle questionTitle) {
-        Intent intent = new Intent(this,TopicProblemsActivity.class);
+        Intent intent = new Intent(this, AnswerActivity.class);
         intent.putExtra("Q_TITLE",questionTitle);
         startActivity(intent);
     }
 
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                dX = view.getX() - event.getRawX();
-                dY = view.getY() - event.getRawY();
-                lastAction = MotionEvent.ACTION_DOWN;
-                break;
 
-            case MotionEvent.ACTION_MOVE:
-                view.setY(event.getRawY() + dY);
-                view.setX(event.getRawX() + dX);
-                lastAction = MotionEvent.ACTION_MOVE;
-                break;
-
-            case MotionEvent.ACTION_UP:
-                if (lastAction == MotionEvent.ACTION_DOWN)
-//                    askQuestion();
-//                    Toast.makeText(HomeActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
-                break;
-
-            default:
-                return false;
-        }
-        return true;
-    }
 
 }
