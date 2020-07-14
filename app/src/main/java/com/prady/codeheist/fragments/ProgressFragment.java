@@ -22,4 +22,6 @@ public class ProgressFragment extends Fragment {
         ButterKnife.bind(this,view);
         return view;
     }
+
+
 }
