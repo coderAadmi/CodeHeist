@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,35 +32,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.prady.codeheist.adaptors.AnswerEditorListAdapter;
 import com.prady.codeheist.datamodels.Answer;
 import com.prady.codeheist.datamodels.QuestionTitle;
 import com.prady.codeheist.dialogs.ChooseOptionDialog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -125,6 +114,8 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
 
     Uri imageUri;
 
+    String fromId, fromName, fromImg;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,11 +148,20 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
 
     private void init() {
 
-//        "https://assets5.lottiefiles.com/packages/lf20_PEeHJO.json"
-//        "https://assets5.lottiefiles.com/packages/lf20_5vQq5z.json"
-//        "https://assets1.lottiefiles.com/datafiles/mvz0FxzvBshJT8H/data.json"
-//        mAnimationView.setAnimationFromUrl("https://assets7.lottiefiles.com/datafiles/ynC3pG0lWGckLBx/data.json");
-//        mAnimationView.setAnimationFromUrl("https://assets5.lottiefiles.com/packages/lf20_5vQq5z.json");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user!=null)
+        {
+            fromId = user.getUid();
+            fromName = user.getDisplayName();
+            fromImg = null;
+            if(user.getPhotoUrl()!=null)
+                fromImg = user.getPhotoUrl().toString();
+        }
+        else {
+            fromImg = null;
+            fromId = "anonymous";
+            fromName = "anonymous";
+        }
         mAnimationView.setScale(2.5f);
 
 
@@ -171,14 +171,19 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         addEndIconListenerOnAnswerEditor();
+
         if (!isAsking) {
             mQuestionTextView.setVisibility(GONE);
             mQuestionTitle.setVisibility(VISIBLE);
             mQuestionTitle.setText(questionTitle.getTitle());
         } else {
+            //if asking question
             getSupportActionBar().setTitle("Ask Question");
             mPostAnswer.setText("Post Question");
             questionTitle = new QuestionTitle();
+            questionTitle.setFromId(fromId);
+            questionTitle.setFromImg(fromImg);
+            questionTitle.setFromName(fromName);
             addEndIconListenerOnQuestionEditor();
         }
         answerListAdapter = new AnswerEditorListAdapter(this);
@@ -382,13 +387,16 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
         questionTitle.setAnswerMap(new HashMap<>(answerListAdapter.getTextList()));
         FirebaseFirestore fb = FirebaseFirestore.getInstance();
         Timestamp timestamp = new Timestamp(new Date());
+        questionTitle.setTimestamp(timestamp.toString());
+        questionTitle.setId("QuestionBy"+ fromId + timestamp.toString());
         fb.collection("question_titles")
-                .document("QuestionById" + timestamp.toString())
+                .document(questionTitle.getId())
                 .set(questionTitle, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PublishQuestionActivity.this, "Question added successfully", Toast.LENGTH_SHORT).show();
+                        finishAfterTransition();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -414,16 +422,26 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             return;
         }
 
+        Uri fromImg = null;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user.getPhotoUrl()!=null)
+            fromImg = user.getPhotoUrl();
         FirebaseFirestore fb = FirebaseFirestore.getInstance();
-        Answer answer = new Answer(questionTitle.getTitle(), "Poloman", "Poloman", "Anything right now", answerListAdapter.getTextList());
+        Answer answer = new Answer(questionTitle.getTitle(), fromName, fromId, fromImg.toString(), answerListAdapter.getTextList());
+        answer.setQuestionId(questionTitle.getId());
+        Timestamp timestamp = new Timestamp(new Date());
+        answer.setTimestamp(timestamp);
+        answer.setId("AnswerBy"+fromId+timestamp.toString());
         fb.collection("discussions")
                 .document(questionTitle.getId())//q_doc_id for modular exponentiation
                 .collection("answers")
-                .add(answer)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                .document(answer.getId())
+                .set(answer, SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(PublishQuestionActivity.this, "Answer added successfully", Toast.LENGTH_LONG).show();
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(PublishQuestionActivity.this, "Answer added successfully", Toast.LENGTH_SHORT).show();
+                        finishAfterTransition();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
