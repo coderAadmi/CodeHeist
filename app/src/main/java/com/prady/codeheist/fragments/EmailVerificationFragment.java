@@ -1,13 +1,18 @@
 package com.prady.codeheist.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +29,10 @@ public class EmailVerificationFragment extends Fragment {
 
     public interface OnOtpVerifyClickedListener{
         public void onOtpVerificationClicked(String otp);
+
+        public void onResendOtpClicked();
+
+        public void onChangePhoneClicked();
     }
 
     @BindView(R.id.phone_tv)
@@ -47,9 +56,21 @@ public class EmailVerificationFragment extends Fragment {
     @BindView(R.id.otp_input_et)
     EditText mOTPInput;
 
-    OnOtpVerifyClickedListener  mListener;
+    @BindView(R.id.wrong_otp_tv)
+    TextView mWrongOTPTextView;
 
+    private OnOtpVerifyClickedListener  mListener;
 
+    private String phoneText;
+
+    private CountDownTimer countDownTimer;
+
+    private boolean isTimeOver;
+
+    public void setPhoneText(String phone)
+    {
+        phoneText = phoneText;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -60,6 +81,7 @@ public class EmailVerificationFragment extends Fragment {
     public void setOtp(String code)
     {
         mOTPInput.setText(code);
+        countDownTimer.cancel();
         mVerifyButton.performClick();
     }
 
@@ -74,11 +96,76 @@ public class EmailVerificationFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mPhone.setText(phoneText);
+        isTimeOver = false;
         mVerifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isTimeOver)
                 mListener.onOtpVerificationClicked(mOTPInput.getText().toString());
+                else
+                {
+                    Toast.makeText(getActivity(),"Please resend otp.",Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
+        mResendOtpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onResendOtpClicked();
+            }
+        });
+
+        mChangePhoneCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onChangePhoneClicked();
+            }
+        });
+
+        countDownTimer = new CountDownTimer(59000,1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mTimer.setText(millisUntilFinished/1000+"");
+            }
+
+            @Override
+            public void onFinish() {
+                isTimeOver = true;
+                Toast.makeText(getActivity(),"Time over, Please resend the otp.",Toast.LENGTH_LONG).show();
+                mProgress.setVisibility(View.GONE);
+            }
+        };
+        countDownTimer.start();
+
+    }
+
+    public void setWrongOtpMessage()
+    {
+        mWrongOTPTextView.setVisibility(View.VISIBLE);
+        mOTPInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mWrongOTPTextView.setVisibility(View.GONE);
+                mOTPInput.removeTextChangedListener(this);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    public void cancelCountDown()
+    {
+        countDownTimer.cancel();
+        mTimer.setText("0");
+        mProgress.setVisibility(View.GONE);
     }
 }
