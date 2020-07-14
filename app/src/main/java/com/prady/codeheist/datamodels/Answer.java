@@ -9,7 +9,8 @@ import java.util.TreeMap;
 
 public class Answer {
 
-    String id;
+    String id;//id of answer
+    String questionId;//id of question
     String qTitle;
     String fromName;
     String fromId;
@@ -48,6 +49,13 @@ public class Answer {
         this.id = id;
     }
 
+    public String getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(String questionId) {
+        this.questionId = questionId;
+    }
 
     public String getqTitle() {
         return qTitle;
