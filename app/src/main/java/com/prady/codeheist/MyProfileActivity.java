@@ -2,14 +2,11 @@ package com.prady.codeheist;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -32,7 +29,7 @@ public class MyProfileActivity extends AppCompatActivity {
     @BindView(R.id.edit_img_fab)
     FloatingActionButton mEditImgFab;
 
-    @BindView(R.id.username)
+    @BindView(R.id.email)
     TextView mUsername;
 
     @BindView(R.id.profile_name)
