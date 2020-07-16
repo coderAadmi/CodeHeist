@@ -192,11 +192,7 @@ public class HomeActivity extends AppCompatActivity implements TopicListAdaptor.
                 mDrawer.closeDrawer(GravityCompat.START);
             else mDrawer.openDrawer(GravityCompat.START);
         }
-        if(item.getItemId()==R.id.ask_question_menu)
-        {
-//            Toast.makeText(HomeActivity.this,"Adding feature",Toast.LENGTH_SHORT).show();
-            askQuestion();
-        }
+
         return false;
     }
 
