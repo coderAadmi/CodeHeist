@@ -7,12 +7,11 @@
     android:checkable="true"
     android:layout_marginStart="20dp"
     android:layout_marginEnd="20dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="8dp"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="44dp"
     app:cardBackgroundColor="@android:color/black"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -21,7 +20,7 @@
        android:background="@android:color/white"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:layout_marginBottom="10dp"
+       android:layout_marginBottom="8dp"
        android:layout_marginTop="2dp"
        android:layout_marginStart="2dp"
        android:layout_marginEnd="2dp">
@@ -31,10 +30,12 @@
            android:layout_marginEnd="4dp"
            android:layout_centerInParent="true"
            android:id="@+id/title"
-           android:textSize="20sp"
+           android:textSize="16sp"
+           android:paddingTop="2dp"
+           android:paddingBottom="2dp"
            android:fontFamily="@font/audiowide"
            android:textColor="@android:color/black"
-           android:layout_width="wrap_content"
+           android:layout_width="match_parent"
            android:layout_height="wrap_content"/>
 
    </RelativeLayout>
