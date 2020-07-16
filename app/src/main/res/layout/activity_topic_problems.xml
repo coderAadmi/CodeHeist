@@ -23,41 +23,15 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <RelativeLayout
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="vertical"
+        <androidx.core.widget.NestedScrollView
+            android:layout_above="@+id/gradient_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:background="@android:color/black"
-                android:id="@+id/question_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/audiowide"
-                android:paddingStart="15dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="15dp"
-                android:paddingBottom="2dp"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:background="@android:color/black"
-                android:id="@+id/question_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                 />
-
-            <View
-                android:background="@android:color/black"
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_marginBottom="10dp"/>
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -65,37 +39,78 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/answer_count"
+                    android:background="@android:color/black"
+                    android:id="@+id/question_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/audiowide"
-                    android:paddingStart="12dp"
+                    android:paddingStart="15dp"
                     android:paddingTop="2dp"
-                    android:paddingEnd="12dp"
+                    android:paddingEnd="15dp"
                     android:paddingBottom="2dp"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/holo_blue_light"
                     android:textSize="14sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/answers_list"
+                    android:background="@android:color/black"
+                    android:id="@+id/question_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp" />
+                    />
+
+                <View
+                    android:background="@android:color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:layout_marginBottom="10dp"/>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/answer_count"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/audiowide"
+                        android:paddingStart="12dp"
+                        android:paddingTop="2dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="2dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/answers_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <View
+            android:background="@drawable/home_bottom_gradient"
+            android:id="@+id/gradient_view"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"/>
 
 
-    </androidx.core.widget.NestedScrollView>
-
+    </RelativeLayout>
 
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"
         app:rippleColor="#30FFFFFF"
         android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="8dp"
         android:text="Add Answer"
         android:fontFamily="@font/audiowide"
         style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
@@ -104,7 +119,7 @@
         app:iconTint="@android:color/white"
         app:backgroundTint="@android:color/black"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="42dp"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

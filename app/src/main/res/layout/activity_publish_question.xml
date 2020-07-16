@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:visibility="visible"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/main_layout"
@@ -60,6 +60,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
                         android:hint="Question"
+                        app:hintTextColor="@color/colorPrimary"
                         android:textColorHint="@color/colorPrimary"
                         app:boxBackgroundColor="@android:color/black"
                         app:endIconDrawable="@drawable/ic_check_circle"
@@ -86,23 +87,41 @@
                         android:paddingTop="2dp"
                         android:paddingEnd="16dp"
                         android:paddingBottom="4dp"
-                        android:textColor="@android:color/white"
+                        android:textColor="@android:color/holo_blue_light"
                         android:textSize="16sp"
                         android:visibility="gone" />
 
                 </RelativeLayout>
 
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/ans_list"
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@+id/question_rel"
                     android:layout_alignParentBottom="true"
                     android:layout_marginTop="4dp"
                     android:background="@android:color/white"
-                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/ans_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"/>
+
+
+                    </LinearLayout>
+
+
+                </androidx.core.widget.NestedScrollView>
 
             </RelativeLayout>
 
@@ -125,10 +144,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="20dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="20dp"
                 app:backgroundTint="@android:color/black"
                 app:borderWidth="10dp"
                 app:elevation="4dp"
+                app:fabSize="mini"
                 app:srcCompat="@drawable/ic_add"
                 app:tint="@android:color/white" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
@@ -150,19 +170,13 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/fragment_container"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-        <com.airbnb.lottie.LottieAnimationView
-            app:lottie_rawRes="@raw/spinner"
-            android:layout_centerInParent="true"
-            android:id="@+id/spinner_img"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
 
     </RelativeLayout>
