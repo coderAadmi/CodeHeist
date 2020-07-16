@@ -39,6 +39,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.OAuthProvider;
+import com.google.firebase.auth.UserInfo;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.prady.codeheist.fragments.ProgressFragment;
 
@@ -246,7 +247,7 @@ public class AuthActivity extends AppCompatActivity  {
         mForgotPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(AuthActivity.this,"Feature under development",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AuthActivity.this,"Feature under development.",Toast.LENGTH_SHORT).show();
                 return;
             }
         });
@@ -266,7 +267,10 @@ public class AuthActivity extends AppCompatActivity  {
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Toast.makeText(AuthActivity.this,"Feature under development.Please sign in through facebook , github or google.",Toast.LENGTH_SHORT).show();
+                return;
+//                Intent intent = new Intent(AuthActivity.this,SignUpActivity.class);
+//                startActivity(intent);
             }
         });
 
@@ -484,6 +488,13 @@ public class AuthActivity extends AppCompatActivity  {
 
     private void updateUI(FirebaseUser user)
     {
+//        UserInfo info = user.getProviderData().get(1);
+//        Log.d("USER_AUTH",info.getProviderId()+"   "+info.isEmailVerified());
+//        if(false)
+//        {
+//            Toast.makeText(AuthActivity.this,"Please verify your email address first",Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         Intent intent = new Intent(AuthActivity.this,HomeActivity.class);
         startActivity(intent);
         finishAfterTransition();
