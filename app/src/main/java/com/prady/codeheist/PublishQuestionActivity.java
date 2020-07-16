@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ import com.prady.codeheist.adaptors.AnswerEditorListAdapter;
 import com.prady.codeheist.datamodels.Answer;
 import com.prady.codeheist.datamodels.QuestionTitle;
 import com.prady.codeheist.dialogs.ChooseOptionDialog;
+import com.prady.codeheist.fragments.ProgressFragment;
 
 import java.io.IOException;
 import java.util.Date;
@@ -96,8 +98,9 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
     @BindView(R.id.remove_img_view)
     AppCompatImageView mRemoveImgView;
 
-    @BindView(R.id.spinner_img)
-    LottieAnimationView mAnimationView;
+    @BindView(R.id.fragment_container)
+    RelativeLayout mFragmentContainer;
+
 
     AnswerEditorListAdapter answerListAdapter;
 
@@ -115,6 +118,8 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
     Uri imageUri;
 
     String fromId, fromName, fromImg;
+
+    private ProgressFragment mProgressFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -162,8 +167,6 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             fromId = "anonymous";
             fromName = "anonymous";
         }
-        mAnimationView.setScale(2.5f);
-
 
         imgUploadedCount = 0;
         isCameraPermitted = false;
@@ -315,6 +318,27 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
         //call firebase cloud storage
     }
 
+    private void inflateProgressFragment()
+    {
+
+        mFragmentContainer.setVisibility(VISIBLE);
+        if(mProgressFragment == null)
+        {
+            mProgressFragment = new ProgressFragment();
+        }
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container,mProgressFragment)
+                .commit();
+    }
+
+    private void hideProgressFragment()
+    {
+        mFragmentContainer.setVisibility(GONE);
+        getSupportFragmentManager().beginTransaction()
+                .remove(mProgressFragment)
+                .commit();
+    }
+
     private void addEndIconListenerOnQuestionEditor() {
         mQuestionTextView.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -383,6 +407,8 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             Toast.makeText(this, "Please see that you have a valid internet connection.", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        inflateProgressFragment();
 //        Answer answer = new Answer(questionTitle.getTitle(),"Poloman", "Poloman", "Anything right now", answerListAdapter.getTextList());
         questionTitle.setAnswerMap(new HashMap<>(answerListAdapter.getTextList()));
         FirebaseFirestore fb = FirebaseFirestore.getInstance();
@@ -396,12 +422,14 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PublishQuestionActivity.this, "Question added successfully", Toast.LENGTH_SHORT).show();
+                        hideProgressFragment();
                         finishAfterTransition();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        hideProgressFragment();
                         Toast.makeText(PublishQuestionActivity.this, "Exception occured: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         Log.d("DATA_POST_Q", e.getMessage());
                     }
@@ -422,6 +450,8 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
             return;
         }
 
+        inflateProgressFragment();
+
         Uri fromImg = null;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user.getPhotoUrl()!=null)
@@ -441,12 +471,14 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PublishQuestionActivity.this, "Answer added successfully", Toast.LENGTH_SHORT).show();
+                        hideProgressFragment();
                         finishAfterTransition();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        hideProgressFragment();
                         Toast.makeText(PublishQuestionActivity.this, "Exception occured: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         Log.d("DATA_FAIL", e.getMessage());
                     }
