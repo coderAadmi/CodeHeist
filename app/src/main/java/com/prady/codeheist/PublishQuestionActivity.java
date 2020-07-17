@@ -51,6 +51,7 @@ import com.prady.codeheist.dialogs.ChooseOptionDialog;
 import com.prady.codeheist.fragments.ProgressFragment;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -413,7 +414,9 @@ public class PublishQuestionActivity extends AppCompatActivity implements Answer
         questionTitle.setAnswerMap(new HashMap<>(answerListAdapter.getTextList()));
         FirebaseFirestore fb = FirebaseFirestore.getInstance();
         Timestamp timestamp = new Timestamp(new Date());
-        questionTitle.setTimestamp(timestamp.toString());
+        SimpleDateFormat sfd = new SimpleDateFormat("dd / MM / yyyy    HH : mm : ss");
+        String date = sfd.format(timestamp.toDate());
+        questionTitle.setTimestamp(date);
         questionTitle.setId("QuestionBy"+ fromId + timestamp.toString());
         fb.collection("question_titles")
                 .document(questionTitle.getId())
