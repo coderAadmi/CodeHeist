@@ -1,5 +1,6 @@
 package com.prady.codeheist.adaptors;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.prady.codeheist.R;
 import com.prady.codeheist.datamodels.QuestionTitle;
 
@@ -26,9 +29,12 @@ public class TopicListAdaptor extends RecyclerView.Adapter<TopicListAdaptor.Topi
     private List<QuestionTitle> topics;
     OnTopicClickedListener listener;
 
-    public TopicListAdaptor(List<QuestionTitle> topics, OnTopicClickedListener listener) {
+    private Context context;
+
+    public TopicListAdaptor(List<QuestionTitle> topics, Context context) {
         this.topics = topics;
-        this.listener = listener;
+        this.context = context;
+        this.listener = (OnTopicClickedListener) context;
     }
 
     public void setTopics(List<QuestionTitle> topics) {
@@ -45,6 +51,14 @@ public class TopicListAdaptor extends RecyclerView.Adapter<TopicListAdaptor.Topi
     @Override
     public void onBindViewHolder(@NonNull TopicViewHolder holder, int position) {
         holder.mTitle.setText(topics.get(holder.getAdapterPosition()).getTitle());
+        holder.mFromName.setText(topics.get(holder.getAdapterPosition()).getFromName());
+        holder.mQTime.setText(topics.get(holder.getAdapterPosition()).getTimestamp());
+
+        Glide.with(context)
+                .load(topics.get(holder.getAdapterPosition()).getFromImg())
+                .placeholder(R.drawable.ic_profile)
+                .into(holder.mFromImg);
+
         holder.mTopicCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,6 +79,15 @@ public class TopicListAdaptor extends RecyclerView.Adapter<TopicListAdaptor.Topi
 
         @BindView(R.id.topic_card)
         MaterialCardView mTopicCard;
+
+        @BindView(R.id.question_time)
+        TextView mQTime;
+
+        @BindView(R.id.author_name)
+        TextView mFromName;
+
+        @BindView(R.id.author_img)
+        CircularImageView mFromImg;
 
         public TopicViewHolder(@NonNull View itemView) {
             super(itemView);
